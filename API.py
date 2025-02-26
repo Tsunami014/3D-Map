@@ -1,4 +1,7 @@
 import requests
+import zipfile
+import shapefile
+import os
 import re
 from typing import Tuple, Iterable
 import xml.etree.ElementTree as ET
@@ -82,3 +85,14 @@ def planetDataFile(path: str) -> str:
     resp = requests.get('http://download.openstreetmap.fr/polygons/'+path)
     resp.raise_for_status()
     return resp.text
+
+def getLand():
+    if not os.path.exists('cache/landPolys.zip'):
+        print('Downloading land polygons... (will take a very long time, go get a coffee)')
+        resp = requests.get('https://osmdata.openstreetmap.de/download/land-polygons-split-3857.zip')
+        resp.raise_for_status()
+        if not os.path.exists('cache/'):
+            os.mkdir('cache')
+        with open('cache/landPolys.zip', 'wb+') as f:
+            f.write(resp.content)
+    # zf = zipfile.ZipFile('cache/landPolys.zip', "r")
