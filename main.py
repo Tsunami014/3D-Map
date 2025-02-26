@@ -1,5 +1,14 @@
 from API import planetDataPth, planetDataFile
+from display import displayPlanetData
+from matplotlib import pyplot as plt
 cwd = ""
+def displayAll(cwd):
+    for i in planetDataPth(cwd):
+        if i[-1] == '/':
+            displayAll(cwd+i)
+        else:
+            displayPlanetData(planetDataFile(cwd+i), False)
+
 while True:
     try:
         try:
@@ -10,6 +19,12 @@ while True:
             print('\n'.join(planetDataPth(cwd)))
         elif cmd[0] == 'cat':
             print(planetDataFile(cwd+cmd[1]))
+        elif cmd[0] == 'disp':
+            if cmd[1] == 'all':
+                displayAll(cwd)
+                plt.show()
+            else:
+                displayPlanetData(planetDataFile(cwd+cmd[1]))
         elif cmd[0] == 'cd':
             if cmd[1] == '..':
                 cwd = '/'.join(cwd.split('/')[:-1])
