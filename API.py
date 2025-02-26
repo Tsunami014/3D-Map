@@ -1,17 +1,18 @@
 import requests
+from typing import Tuple
 import xml.etree.ElementTree as ET
 
 BASE_URL = 'https://api.openstreetmap.org'
+NOMINATIM_URL = 'https://nominatim.openstreetmap.org'
+NOMINATIM_HEADERS = {
+    'User-Agent': 
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246'
+}
 VERSION = 0.6
 
-def check_online():
+def check_online() -> None:
     """
-    Checks if the server is running and if it is the right version.
-
-    Raises:
-        HTTPError: If the request did not succeed.
-        ValueError: If the version is not supported by openstreetmap.
-        HTTPError: If the API is not online.
+    Checks if the servers are running and if it is the right version.
     """
     # Send request & parse XML
     resp = requests.get(BASE_URL+'/api/capabilities')
@@ -34,3 +35,30 @@ def check_online():
                 f'Openstreetmap\'s {nme} is {val}!' for nme, val in statusData.items() if val != 'online'
             ])
         )
+    
+    resp = requests.get(NOMINATIM_URL+'/status', headers=NOMINATIM_HEADERS)
+    if resp.status_code == 500:
+        raise requests.HTTPError(
+            resp.text
+        )
+    resp.raise_for_status()
+
+def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, float | None]:
+    """
+    Gets the latitude and longitude of a city.
+
+    Args:
+        city (str): The city to find the latitude and longitude of.
+        country (str, optional): The country which contains the city. Defaults to 'Australia'.
+
+    Returns:
+        float | None, float | None: The latitude, longitude of the city (or None if unknown)
+    """
+    resp = requests.get(NOMINATIM_URL+f'/search?format=xml&{country.replace(' ', '%20')}=Australia&city={city.replace(' ', '%20')}', headers=NOMINATIM_HEADERS)
+    resp.raise_for_status()
+    xml = resp.text
+    root = ET.fromstring(xml)
+    for elm in root.iter('place'):
+        vals = elm.attrib
+        return float(vals['lat']), float(vals['lon'])
+    return None, None
