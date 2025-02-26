@@ -1,6 +1,7 @@
 import requests
 import zipfile
-import shapefile
+import io
+import mapbox_vector_tile
 import os
 import re
 from typing import Tuple, Iterable
@@ -10,7 +11,8 @@ __all__ = [
     'check_online',
     'get_location',
     'planetDataPth',
-    'planetDataFile'
+    'planetDataFile',
+    'getPlaceInfo'
 ]
 
 BASE_URL = 'https://api.openstreetmap.org'
@@ -96,3 +98,26 @@ def getLand():
         with open('cache/landPolys.zip', 'wb+') as f:
             f.write(resp.content)
     # zf = zipfile.ZipFile('cache/landPolys.zip', "r")
+
+def getPlaceInfo():
+    def fix_coords(coords, coordFixingFunc):
+        if hasattr(coords, 'append'):
+            return [fix_coords(i, coordFixingFunc) for i in coords]
+        return coordFixingFunc(coords)
+        
+    resp = requests.get('https://tile.nextzen.org/tilezen/vector/v1/512/all/5/27/18.mvt?api_key=dmlO1fVQRPKI-GrVIYJ1YA', headers={
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0', # For avoiding cloudfare
+        'Origin': 'https://tangrams.github.io', # For working
+        'Connection': 'keep-alive' # For speed
+    })
+    resp.raise_for_status()
+    Dcoded = mapbox_vector_tile.decode(resp.content)
+    out = []
+    for featureGroup in Dcoded:
+        for feature in Dcoded[featureGroup]['features']:
+            desc = featureGroup+':'+feature['properties']['kind']
+            if 'name' in feature['properties']:
+                desc += f' ({feature['properties']['name']})'
+            coords = fix_coords(feature['geometry']['coordinates'], lambda num: num/Dcoded[featureGroup]['extent'])
+            out.append({'type': feature['geometry']['type'], 'coords': coords, 'desc': desc})
+    return out

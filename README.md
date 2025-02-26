@@ -5,4 +5,5 @@
 ## APIs used:
  - [Openstreetmap](https://www.openstreetmap.org) & it's [Planet.osm](http://download.openstreetmap.fr/)
  - [Nominatim](https://nominatim.org/)
+ - [Nextzen](https://www.nextzen.org/)
 // TODO: In the final game implement a credit thingo for the APIs as they want that

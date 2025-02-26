@@ -1,4 +1,4 @@
-PyShp
+mapbox_vector_tile
 requests
 matplotlib
 pygame
