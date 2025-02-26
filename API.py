@@ -1,6 +1,14 @@
 import requests
-from typing import Tuple
+import re
+from typing import Tuple, Iterable
 import xml.etree.ElementTree as ET
+
+__all__ = [
+    'check_online',
+    'get_location',
+    'planetDataPth',
+    'planetDataFile'
+]
 
 BASE_URL = 'https://api.openstreetmap.org'
 NOMINATIM_URL = 'https://nominatim.openstreetmap.org'
@@ -62,3 +70,15 @@ def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, f
         vals = elm.attrib
         return float(vals['lat']), float(vals['lon'])
     return None, None
+
+def planetDataPth(path: str) -> Iterable[str]:
+    resp = requests.get('http://download.openstreetmap.fr/polygons/'+path)
+    resp.raise_for_status()
+    html = resp.text
+    a = re.findall(r'<a href="([^"?/][^"]*)">', html)
+    return a
+
+def planetDataFile(path: str) -> str:
+    resp = requests.get('http://download.openstreetmap.fr/polygons/'+path)
+    resp.raise_for_status()
+    return resp.text
