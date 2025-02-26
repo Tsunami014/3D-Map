@@ -3,8 +3,12 @@ import pygame
 pygame.init()
 WIN = pygame.display.set_mode((800, 800))
 
-def drawInf():
-    inf = getPlaceInfo()
+x, y, z = 27, 18, 5
+
+def drawInf(x, y, z):
+    WIN.fill((255, 255, 255))
+    pygame.display.update()
+    inf = getPlaceInfo(x, y, z)
     sze = 600
     sur = pygame.Surface((sze, sze))
     sur.fill((255, 255, 255))
@@ -38,9 +42,38 @@ def drawInf():
                     pygame.draw.lines(sur, col, False, [[i[0]*sze, i[1]*sze] for i in ln], WIDTH)
             case 'Point':
                 pygame.draw.circle(sur, col, (shp['coords'][0] * sze, shp['coords'][1] * sze), WIDTH//2)
-    
     WIN.blit(sur, (0, 0))
     pygame.display.update()
 
-drawInf()
-pygame.time.delay(60000)
+run = True
+needsUpdating = True
+while run:
+    for evnt in pygame.event.get():
+        if evnt.type == pygame.QUIT:
+            run = False
+        elif evnt.type == pygame.KEYDOWN:
+            match evnt.key:
+                case pygame.K_ESCAPE:
+                    run = False
+                case pygame.K_UP:
+                    needsUpdating = True
+                    y += 1
+                case pygame.K_DOWN:
+                    needsUpdating = True
+                    y -= 1
+                case pygame.K_LEFT:
+                    needsUpdating = True
+                    x -= 1
+                case pygame.K_RIGHT:
+                    needsUpdating = True
+                    x += 1
+                case pygame.K_COMMA:
+                    needsUpdating = True
+                    z -= 1
+                case pygame.K_PERIOD:
+                    needsUpdating = True
+                    z += 1
+    
+    if needsUpdating:
+        needsUpdating = False
+        drawInf(x, y, z)

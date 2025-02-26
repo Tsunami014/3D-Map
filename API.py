@@ -99,13 +99,13 @@ def getLand():
             f.write(resp.content)
     # zf = zipfile.ZipFile('cache/landPolys.zip', "r")
 
-def getPlaceInfo():
+def getPlaceInfo(x, y, z):
     def fix_coords(coords, coordFixingFunc):
         if hasattr(coords, 'append'):
             return [fix_coords(i, coordFixingFunc) for i in coords]
         return coordFixingFunc(coords)
         
-    resp = requests.get('https://tile.nextzen.org/tilezen/vector/v1/512/all/5/27/18.mvt?api_key=dmlO1fVQRPKI-GrVIYJ1YA', headers={
+    resp = requests.get(f'https://tile.nextzen.org/tilezen/vector/v1/512/all/{z}/{x}/{y}.mvt?api_key=dmlO1fVQRPKI-GrVIYJ1YA', headers={
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0', # For avoiding cloudfare
         'Origin': 'https://tangrams.github.io', # For working
         'Connection': 'keep-alive' # For speed
