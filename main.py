@@ -12,11 +12,21 @@ WIN = pygame.display.set_mode((800, 800))
 
 placesInf = {}
 SZE = 512
+WHITES = [pygame.Surface((SZE, SZE)), pygame.Surface((SZE*2, SZE*2))]
+WHITES[0].fill((255, 50, 50))
+WHITES[1].fill((255, 50, 50))
 
-def getInf(x, y, z):
-    inf = getPlaceInfo(x, y, z)
+def drawInf(x, y, z):
+    try:
+        inf = getPlaceInfo(x, y, z)
+        heightsur = getHeightInfo(x, y, z)
+    except AssertionError:
+        placesInf[(x, y, z)] = WHITES
+        return
+    except Exception:
+        placesInf.pop((x, y, z))
+        return
     inf.sort(key=lambda x: x['importance'])
-    heightsur = getHeightInfo(x, y, z)
     sur = pygame.Surface((SZE, SZE), pygame.SRCALPHA)
     
     COL_D = {
@@ -53,13 +63,10 @@ def getInf(x, y, z):
             pygame.draw.circle(sur, col, (shp['coords'][0] * SZE, shp['coords'][1] * SZE), WIDTH//2)
     
     heightsur.blit(sur, (0, 0))
-    placesInf[(x, y, z)] = heightsur
-
-def drawInf(x, y, z):
-    placesInf[(x, y, z)] = None
-    Thread(target=getInf, args=(x, y, z), daemon=True).start()
+    placesInf[(x, y, z)] = (heightsur, pygame.transform.scale2x(heightsur))
 
 run = True
+clock = pygame.time.Clock()
 while run:
     for evnt in pygame.event.get():
         if evnt.type == pygame.QUIT:
@@ -79,13 +86,13 @@ while run:
     
     ks = pygame.key.get_pressed()
     if ks[pygame.K_UP]:
-        y -= 0.01
+        y -= 0.03
     elif ks[pygame.K_DOWN]:
-        y += 0.01
+        y += 0.03
     if ks[pygame.K_LEFT]:
-        x -= 0.01
+        x -= 0.03
     elif ks[pygame.K_RIGHT]:
-        x += 0.01
+        x += 0.03
     
     WIN.fill((255, 255, 255))
     for yoff in (1, 2, 0):
@@ -93,8 +100,18 @@ while run:
             pos = (math.floor(x)+xoff, math.floor(y)+yoff, math.floor(z))
             if pos not in placesInf:
                 pygame.display.update()
-                drawInf(*pos)
-            elif placesInf[pos] is not None:
-                WIN.blit(placesInf[pos], (xoff*SZE-(x%1)*SZE, yoff*SZE-(y%1)*SZE))
+                placesInf[pos] = None
+                Thread(target=drawInf, args=pos, daemon=True).start()
+            
+            if placesInf[pos] is not None:
+                WIN.blit(placesInf[pos][0], (xoff*SZE-(x%1)*SZE, yoff*SZE-(y%1)*SZE))
+            elif pos[2] > 1:
+                pos2 = (math.floor(pos[0]/2), math.floor(pos[1]/2), pos[2]-1)
+                if pos2 in placesInf and placesInf[pos2] is not None:
+                    xoff2 = int((pos[0]/2)%1 == 0.5)
+                    yoff2 = int((pos[1]/2)%1 == 0.5)
+                    sect = placesInf[pos2][1].subsurface(xoff2*SZE, yoff2*SZE, SZE, SZE)
+                    WIN.blit(sect, (xoff*SZE-(x%1)*SZE, yoff*SZE-(y%1)*SZE))
 
     pygame.display.update()
+    clock.tick(30)
