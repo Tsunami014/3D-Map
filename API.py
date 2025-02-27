@@ -80,6 +80,7 @@ def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, f
     return None, None
 
 def lat_lngTOxy(lat, lng, zoom):
+    # Thanks to https://stackoverflow.com/questions/37464824/converting-longitude-latitude-to-tile-coordinates !
     return math.floor((lng+180)/360*pow(2, zoom)), \
         (math.floor((1-math.log(math.tan(lat*math.pi/180) + 1/math.cos(lat*math.pi/180))/math.pi)/2*math.pow(2,zoom)))
 
@@ -94,17 +95,6 @@ def planetDataFile(path: str) -> str:
     resp = requests.get('http://download.openstreetmap.fr/polygons/'+path)
     resp.raise_for_status()
     return resp.text
-
-def getLand():
-    if not os.path.exists('cache/landPolys.zip'):
-        print('Downloading land polygons... (will take a very long time, go get a coffee)')
-        resp = requests.get('https://osmdata.openstreetmap.de/download/land-polygons-split-3857.zip')
-        resp.raise_for_status()
-        if not os.path.exists('cache/'):
-            os.mkdir('cache')
-        with open('cache/landPolys.zip', 'wb+') as f:
-            f.write(resp.content)
-    # zf = zipfile.ZipFile('cache/landPolys.zip', "r")
 
 def getPlaceInfo(x, y, z):
     def fix_coords(coords, coordFixingFunc):
