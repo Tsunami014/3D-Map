@@ -1,11 +1,14 @@
 import math
-from API import getPlaceInfo, getHeightInfo
+from API import getPlaceInfo, getHeightInfo, get_location, lat_lngTOxy
 from threading import Thread
 import pygame
+
+z = 9
+lat, lng = get_location(input('Choose a city in Australia (blank for Sydney) > ') or 'Sydney')
+x, y = lat_lngTOxy(lat, lng, z)
+
 pygame.init()
 WIN = pygame.display.set_mode((800, 800))
-
-x, y, z = 470, 305, 9
 
 placesInf = {}
 SZE = 512
@@ -13,7 +16,6 @@ SZE = 512
 def getInf(x, y, z):
     inf = getPlaceInfo(x, y, z)
     inf.sort(key=lambda x: x['importance'])
-    inf = [i for i in inf if i['group'] != 'earth']
     heightsur = getHeightInfo(x, y, z)
     sur = pygame.Surface((SZE, SZE), pygame.SRCALPHA)
     
@@ -28,7 +30,9 @@ def getInf(x, y, z):
         'other': (255, 50, 255)
     }
     WIDTH = 3
-    for shp in inf:
+    for shp in inf[:500]:
+        if shp['group'] == 'earth':
+            continue
         if shp['group'] in COL_D:
             col = COL_D[shp['group']]
         else:

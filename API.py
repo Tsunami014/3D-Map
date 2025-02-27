@@ -1,6 +1,7 @@
 import requests
 import zipfile
 import io
+import math
 import pygame
 import mapbox_vector_tile
 import os
@@ -13,7 +14,8 @@ __all__ = [
     'get_location',
     'planetDataPth',
     'planetDataFile',
-    'getPlaceInfo'
+    'getPlaceInfo',
+    'lat_lngTOxy'
 ]
 
 BASE_URL = 'https://api.openstreetmap.org'
@@ -68,7 +70,7 @@ def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, f
     Returns:
         float | None, float | None: The latitude, longitude of the city (or None if unknown)
     """
-    resp = requests.get(NOMINATIM_URL+f'/search?format=xml&{country.replace(" ", "%20")}=Australia&city={city.replace(" ", "%20")}', headers=NOMINATIM_HEADERS)
+    resp = requests.get(NOMINATIM_URL+f'/search?format=xml&country={country.replace(" ", "%20")}&city={city.replace(" ", "%20")}', headers=NOMINATIM_HEADERS)
     resp.raise_for_status()
     xml = resp.text
     root = ET.fromstring(xml)
@@ -76,6 +78,10 @@ def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, f
         vals = elm.attrib
         return float(vals['lat']), float(vals['lon'])
     return None, None
+
+def lat_lngTOxy(lat, lng, zoom):
+    return math.floor((lng+180)/360*pow(2, zoom)), \
+        (math.floor((1-math.log(math.tan(lat*math.pi/180) + 1/math.cos(lat*math.pi/180))/math.pi)/2*math.pow(2,zoom)))
 
 def planetDataPth(path: str) -> Iterable[str]:
     resp = requests.get('http://download.openstreetmap.fr/polygons/'+path)
