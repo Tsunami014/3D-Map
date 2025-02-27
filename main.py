@@ -1,19 +1,22 @@
 import math
-from API import getPlaceInfo
+from API import getPlaceInfo, getHeightInfo
 from threading import Thread
 import pygame
 pygame.init()
 WIN = pygame.display.set_mode((800, 800))
 
-x, y, z = 27, 18, 5
+x, y, z = 470, 305, 9
 
 placesInf = {}
-SZE = 600
+SZE = 512
 
 def getInf(x, y, z):
     inf = getPlaceInfo(x, y, z)
-    sur = pygame.Surface((SZE, SZE))
-    sur.fill((255, 255, 255))
+    inf.sort(key=lambda x: x['importance'])
+    inf = [i for i in inf if i['group'] != 'earth']
+    heightsur = getHeightInfo(x, y, z)
+    sur = pygame.Surface((SZE, SZE), pygame.SRCALPHA)
+    
     COL_D = {
         'water': (10, 50, 255),
         'earth': (10, 255, 50),
@@ -21,14 +24,13 @@ def getInf(x, y, z):
         'transit': (90, 60, 100),
         'boundaries': (0, 0, 0),
         'roads': (255, 255, 50),
-        'landuse': (155, 130, 10),
+        'landuse': (155, 130, 10, 200),
         'other': (255, 50, 255)
     }
-    WIDTH = 10
+    WIDTH = 3
     for shp in inf:
-        sec, *_ = shp['desc'].split(':')
-        if sec in COL_D:
-            col = COL_D[sec]
+        if shp['group'] in COL_D:
+            col = COL_D[shp['group']]
         else:
             col = COL_D['other']
         if shp['type'] == 'MultiPolygon':
@@ -43,7 +45,9 @@ def getInf(x, y, z):
                 pygame.draw.lines(sur, col, False, [[i[0]*SZE, i[1]*SZE] for i in ln], WIDTH)
         elif shp['type'] == 'Point':
             pygame.draw.circle(sur, col, (shp['coords'][0] * SZE, shp['coords'][1] * SZE), WIDTH//2)
-    placesInf[(x, y, z)] = sur
+    
+    heightsur.blit(sur, (0, 0))
+    placesInf[(x, y, z)] = heightsur
 
 def drawInf(x, y, z):
     placesInf[(x, y, z)] = None
@@ -58,28 +62,33 @@ while run:
             if evnt.key == pygame.K_ESCAPE:
                 run = False
             elif evnt.key == pygame.K_COMMA:
-                z -= 1
+                if z > 1:
+                    z -= 1
+                    x /= 2
+                    y /= 2
             elif evnt.key == pygame.K_PERIOD:
                 z += 1
+                x *= 2
+                y *= 2
     
     ks = pygame.key.get_pressed()
     if ks[pygame.K_UP]:
-        y += 0.01
-    elif ks[pygame.K_DOWN]:
         y -= 0.01
-    elif ks[pygame.K_LEFT]:
+    elif ks[pygame.K_DOWN]:
+        y += 0.01
+    if ks[pygame.K_LEFT]:
         x -= 0.01
     elif ks[pygame.K_RIGHT]:
         x += 0.01
     
     WIN.fill((255, 255, 255))
-    for yoff in (-1, 0, 1):
-        for xoff in (-1, 0, 1):
-            pos = (math.floor(x)+xoff, math.floor(y)-yoff, math.floor(z))
+    for yoff in (0, 1, 2):
+        for xoff in (0, 1, 2):
+            pos = (math.floor(x)+xoff, math.floor(y)+yoff, math.floor(z))
             if pos not in placesInf:
                 pygame.display.update()
                 drawInf(*pos)
             elif placesInf[pos] is not None:
-                WIN.blit(placesInf[pos], (xoff*SZE-(x%1)*SZE, yoff*SZE+(y%1)*SZE))
+                WIN.blit(placesInf[pos], (xoff*SZE-(x%1)*SZE, yoff*SZE-(y%1)*SZE))
 
     pygame.display.update()

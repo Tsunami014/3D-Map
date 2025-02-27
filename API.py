@@ -1,6 +1,7 @@
 import requests
 import zipfile
 import io
+import pygame
 import mapbox_vector_tile
 import os
 import re
@@ -99,25 +100,50 @@ def getLand():
             f.write(resp.content)
     # zf = zipfile.ZipFile('cache/landPolys.zip', "r")
 
-def getPlaceInfo(x, y, z, tilesize=512, layers='all'):
+def getPlaceInfo(x, y, z):
     def fix_coords(coords, coordFixingFunc):
-        if hasattr(coords, 'append'):
-            return [fix_coords(i, coordFixingFunc) for i in coords]
-        return coordFixingFunc(coords)
+        if isinstance(coords, int):
+            return coordFixingFunc(coords)
+        elif isinstance(coords[0], int) and len(coords) == 2:
+            return [coordFixingFunc(coords[0]), 1-coordFixingFunc(coords[1])]
+        return [fix_coords(i, coordFixingFunc) for i in coords]
+    assert z <= 16
     
-    resp = requests.get(f'https://tile.nextzen.org/tilezen/vector/v1/{tilesize}/{layers}/{z}/{x}/{y}.mvt?api_key=dmlO1fVQRPKI-GrVIYJ1YA', headers={
+    #                                                               /tilesize/layers
+    resp = requests.get(f'https://tile.nextzen.org/tilezen/vector/v1/512/all/{z}/{x}/{y}.mvt?api_key=dmlO1fVQRPKI-GrVIYJ1YA', headers={
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0', # For avoiding cloudfare
         'Origin': 'https://tangrams.github.io', # For working
         'Connection': 'keep-alive' # For speed
     })
     resp.raise_for_status()
     Dcoded = mapbox_vector_tile.decode(resp.content)
+    IMPORTANCE = {
+        'water': 1,
+        'boundaries': 2,
+        'roads': 3,
+        'places': 4
+    }
     out = []
     for featureGroup in Dcoded:
         for feature in Dcoded[featureGroup]['features']:
-            desc = featureGroup+':'+feature['properties']['kind']
-            if 'name' in feature['properties']:
-                desc += f' ({feature["properties"]["name"]})'
             coords = fix_coords(feature['geometry']['coordinates'], lambda num: num/Dcoded[featureGroup]['extent'])
-            out.append({'type': feature['geometry']['type'], 'coords': coords, 'desc': desc})
+            out.append({
+                'type': feature['geometry']['type'], 
+                'coords': coords, 
+                'importance': -1 if featureGroup not in IMPORTANCE else IMPORTANCE[featureGroup],
+                'group': featureGroup,
+                'kind': feature['properties']['kind'],
+                'name': feature["properties"].get('name', '')
+            })
     return out
+
+def getHeightInfo(x, y, z):
+    assert z <= 14
+    
+    resp = requests.get(f'https://tile.nextzen.org/tilezen/terrain/v1/512/terrarium/{z}/{x}/{y}.png?api_key=dmlO1fVQRPKI-GrVIYJ1YA', headers={
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0', # For avoiding cloudfare
+        'Origin': 'https://tangrams.github.io', # For working
+        'Connection': 'keep-alive' # For speed
+    })
+    resp.raise_for_status()
+    return pygame.image.load(io.BytesIO(resp.content))
