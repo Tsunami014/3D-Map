@@ -7,54 +7,13 @@ from typing import Tuple, Iterable
 import xml.etree.ElementTree as ET
 
 __all__ = [
-    'check_online',
     'get_location',
+    'lat_lngTOxy',
     'planetDataPth',
     'planetDataFile',
     'getPlaceInfo',
-    'lat_lngTOxy'
+    'getHeightInfo'
 ]
-
-BASE_URL = 'https://api.openstreetmap.org'
-NOMINATIM_URL = 'https://nominatim.openstreetmap.org'
-NOMINATIM_HEADERS = {
-    'User-Agent': 
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246'
-}
-VERSION = 0.6
-
-def check_online() -> None:
-    """
-    Checks if the servers are running and if it is the right version.
-    """
-    # Send request & parse XML
-    resp = requests.get(BASE_URL+'/api/capabilities')
-    resp.raise_for_status()
-    xml = resp.text
-    root = ET.fromstring(xml)
-    api = root.find('api')
-    # Check version compatability
-    versionData = api.find('version').attrib
-    if not (float(versionData['minimum']) <= VERSION <= float(versionData['maximum'])):
-        raise ValueError(
-            f'Version {VERSION} is not supported by openstreetmap! Versions must be between (inclusive) "{versionData["minimum"]}"-"{versionData["maximum"]}".'
-        )
-    # Check status
-    statusData = api.find('status').attrib
-    offs = [i for i in statusData if statusData[i] != 'online']
-    if offs:
-        raise requests.HTTPError(
-            "\n".join([
-                f'Openstreetmap\'s {nme} is {val}!' for nme, val in statusData.items() if val != 'online'
-            ])
-        )
-    
-    resp = requests.get(NOMINATIM_URL+'/status', headers=NOMINATIM_HEADERS)
-    if resp.status_code == 500:
-        raise requests.HTTPError(
-            resp.text
-        )
-    resp.raise_for_status()
 
 def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, float | None]:
     """
@@ -67,7 +26,10 @@ def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, f
     Returns:
         float | None, float | None: The latitude, longitude of the city (or None if unknown)
     """
-    resp = requests.get(NOMINATIM_URL+f'/search?format=xml&country={country.replace(" ", "%20")}&city={city.replace(" ", "%20")}', headers=NOMINATIM_HEADERS)
+    resp = requests.get(f'https://nominatim.openstreetmap.org/search?format=xml&country={country.replace(" ", "%20")}&city={city.replace(" ", "%20")}', headers={
+            'User-Agent': 
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246'
+        })
     resp.raise_for_status()
     xml = resp.text
     root = ET.fromstring(xml)
@@ -123,7 +85,7 @@ def getPlaceInfo(x, y, z):
     out = []
     for featureGroup in Dcoded:
         for feature in Dcoded[featureGroup]['features']:
-            if feature['properties'].get('min_zoom', 0) <= z:
+            if feature['properties'].get('min_zoom', 0) <= z or feature['geometry']['type'] == 'buildings':
                 out.append({
                     'type': feature['geometry']['type'], 
                     'coords': fix_coords(feature['geometry']['coordinates']), 
