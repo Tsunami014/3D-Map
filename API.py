@@ -37,7 +37,7 @@ def check_online() -> None:
     versionData = api.find('version').attrib
     if not (float(versionData['minimum']) <= VERSION <= float(versionData['maximum'])):
         raise ValueError(
-            f'Version {VERSION} is not supported by openstreetmap! Versions must be between (inclusive) "{versionData['minimum']}"-"{versionData['maximum']}".'
+            f'Version {VERSION} is not supported by openstreetmap! Versions must be between (inclusive) "{versionData["minimum"]}"-"{versionData["maximum"]}".'
         )
     # Check status
     statusData = api.find('status').attrib
@@ -67,7 +67,7 @@ def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, f
     Returns:
         float | None, float | None: The latitude, longitude of the city (or None if unknown)
     """
-    resp = requests.get(NOMINATIM_URL+f'/search?format=xml&{country.replace(' ', '%20')}=Australia&city={city.replace(' ', '%20')}', headers=NOMINATIM_HEADERS)
+    resp = requests.get(NOMINATIM_URL+f'/search?format=xml&{country.replace(" ", "%20")}=Australia&city={city.replace(" ", "%20")}', headers=NOMINATIM_HEADERS)
     resp.raise_for_status()
     xml = resp.text
     root = ET.fromstring(xml)
@@ -117,7 +117,7 @@ def getPlaceInfo(x, y, z, tilesize=512, layers='all'):
         for feature in Dcoded[featureGroup]['features']:
             desc = featureGroup+':'+feature['properties']['kind']
             if 'name' in feature['properties']:
-                desc += f' ({feature['properties']['name']})'
+                desc += f' ({feature["properties"]["name"]})'
             coords = fix_coords(feature['geometry']['coordinates'], lambda num: num/Dcoded[featureGroup]['extent'])
             out.append({'type': feature['geometry']['type'], 'coords': coords, 'desc': desc})
     return out

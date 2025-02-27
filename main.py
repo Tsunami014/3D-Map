@@ -31,19 +31,18 @@ def getInf(x, y, z):
             col = COL_D[sec]
         else:
             col = COL_D['other']
-        match shp['type']:
-            case 'MultiPolygon':
-                for poly in shp['coords']:
-                    pygame.draw.polygon(sur, col, [[i[0]*SZE, i[1]*SZE] for i in poly[0]])
-            case 'Polygon':
-                pygame.draw.polygon(sur, col, [[i[0]*SZE, i[1]*SZE] for i in shp['coords'][0]])
-            case 'LineString':
-                pygame.draw.lines(sur, col, False, [[i[0]*SZE, i[1]*SZE] for i in shp['coords']], WIDTH)
-            case 'MultiLineString':
-                for ln in shp['coords']:
-                    pygame.draw.lines(sur, col, False, [[i[0]*SZE, i[1]*SZE] for i in ln], WIDTH)
-            case 'Point':
-                pygame.draw.circle(sur, col, (shp['coords'][0] * SZE, shp['coords'][1] * SZE), WIDTH//2)
+        if shp['type'] == 'MultiPolygon':
+            for poly in shp['coords']:
+                pygame.draw.polygon(sur, col, [[i[0]*SZE, i[1]*SZE] for i in poly[0]])
+        elif shp['type'] == 'Polygon':
+            pygame.draw.polygon(sur, col, [[i[0]*SZE, i[1]*SZE] for i in shp['coords'][0]])
+        elif shp['type'] == 'LineString':
+            pygame.draw.lines(sur, col, False, [[i[0]*SZE, i[1]*SZE] for i in shp['coords']], WIDTH)
+        elif shp['type'] == 'MultiLineString':
+            for ln in shp['coords']:
+                pygame.draw.lines(sur, col, False, [[i[0]*SZE, i[1]*SZE] for i in ln], WIDTH)
+        elif shp['type'] == 'Point':
+            pygame.draw.circle(sur, col, (shp['coords'][0] * SZE, shp['coords'][1] * SZE), WIDTH//2)
     placesInf[(x, y, z)] = sur
 
 def drawInf(x, y, z):
