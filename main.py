@@ -23,14 +23,16 @@ def getInf(x, y, z):
         'water': (10, 50, 255),
         'earth': (10, 255, 50),
         'places': (255, 50, 50),
+        'pois': (255, 50, 50),
         'transit': (90, 60, 100),
         'boundaries': (0, 0, 0),
         'roads': (255, 255, 50),
         'landuse': (155, 130, 10, 200),
+        'buildings': (125, 125, 125),
         'other': (255, 50, 255)
     }
     WIDTH = 3
-    for shp in inf[:500]:
+    for shp in inf:
         if shp['group'] == 'earth':
             continue
         if shp['group'] in COL_D:
@@ -86,8 +88,8 @@ while run:
         x += 0.01
     
     WIN.fill((255, 255, 255))
-    for yoff in (0, 1, 2):
-        for xoff in (0, 1, 2):
+    for yoff in (1, 2, 0):
+        for xoff in (1, 2, 0):
             pos = (math.floor(x)+xoff, math.floor(y)+yoff, math.floor(z))
             if pos not in placesInf:
                 pygame.display.update()

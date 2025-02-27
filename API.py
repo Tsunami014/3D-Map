@@ -1,10 +1,7 @@
 import requests
-import zipfile
 import io
 import math
 import pygame
-import mapbox_vector_tile
-import os
 import re
 from typing import Tuple, Iterable
 import xml.etree.ElementTree as ET
@@ -79,10 +76,13 @@ def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, f
         return float(vals['lat']), float(vals['lon'])
     return None, None
 
-def lat_lngTOxy(lat, lng, zoom):
+def lat_lngTOxy(lat, lng, zoom, partial=False):
     # Thanks to https://stackoverflow.com/questions/37464824/converting-longitude-latitude-to-tile-coordinates !
-    return math.floor((lng+180)/360*pow(2, zoom)), \
-        (math.floor((1-math.log(math.tan(lat*math.pi/180) + 1/math.cos(lat*math.pi/180))/math.pi)/2*math.pow(2,zoom)))
+    x = (lng+180)/360*pow(2, zoom)
+    y = (1-math.log(math.tan(lat*math.pi/180) + 1/math.cos(lat*math.pi/180))/math.pi)/2*pow(2,zoom)
+    if partial:
+        return x, y
+    return math.floor(x), math.floor(y)
 
 def planetDataPth(path: str) -> Iterable[str]:
     resp = requests.get('http://download.openstreetmap.fr/polygons/'+path)
@@ -97,40 +97,41 @@ def planetDataFile(path: str) -> str:
     return resp.text
 
 def getPlaceInfo(x, y, z):
-    def fix_coords(coords, coordFixingFunc):
-        if isinstance(coords, int):
-            return coordFixingFunc(coords)
-        elif isinstance(coords[0], int) and len(coords) == 2:
-            return [coordFixingFunc(coords[0]), 1-coordFixingFunc(coords[1])]
-        return [fix_coords(i, coordFixingFunc) for i in coords]
+    def fix_coords(coords):
+        if isinstance(coords[0], (int, float)) and len(coords) == 2:
+            x2, y2 = lat_lngTOxy(coords[1], coords[0], zoom=z, partial=True)
+            return [min(max(x2-x, 0), 1), min(max(y2-y, 0), 1)]
+        return [fix_coords(i) for i in coords]
     assert z <= 16
     
     #                                                               /tilesize/layers
-    resp = requests.get(f'https://tile.nextzen.org/tilezen/vector/v1/512/all/{z}/{x}/{y}.mvt?api_key=dmlO1fVQRPKI-GrVIYJ1YA', headers={
+    resp = requests.get(f'https://tile.nextzen.org/tilezen/vector/v1/512/all/{z}/{x}/{y}.json?api_key=dmlO1fVQRPKI-GrVIYJ1YA', headers={
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0', # For avoiding cloudfare
         'Origin': 'https://tangrams.github.io', # For working
         'Connection': 'keep-alive' # For speed
     })
     resp.raise_for_status()
-    Dcoded = mapbox_vector_tile.decode(resp.content)
-    IMPORTANCE = {
-        'water': 1,
-        'boundaries': 2,
-        'roads': 3,
-        'places': 4
-    }
+    Dcoded = resp.json()
+    IMPORTANCE = [
+        'water',
+        'boundaries',
+        'roads',
+        'buildings',
+        'places',
+        'pois',
+    ]
     out = []
     for featureGroup in Dcoded:
         for feature in Dcoded[featureGroup]['features']:
-            coords = fix_coords(feature['geometry']['coordinates'], lambda num: num/Dcoded[featureGroup]['extent'])
-            out.append({
-                'type': feature['geometry']['type'], 
-                'coords': coords, 
-                'importance': -1 if featureGroup not in IMPORTANCE else IMPORTANCE[featureGroup],
-                'group': featureGroup,
-                'kind': feature['properties']['kind'],
-                'name': feature["properties"].get('name', '')
-            })
+            if feature['properties'].get('min_zoom', 0) <= z:
+                out.append({
+                    'type': feature['geometry']['type'], 
+                    'coords': fix_coords(feature['geometry']['coordinates']), 
+                    'importance': -1 if featureGroup not in IMPORTANCE else IMPORTANCE.index(featureGroup),
+                    'group': featureGroup,
+                    'kind': feature['properties']['kind'],
+                    'name': feature['properties'].get('name', '') # source, operator?
+                })
     return out
 
 def getHeightInfo(x, y, z):
