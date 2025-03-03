@@ -4,11 +4,13 @@ from threading import Thread
 import pygame
 
 z = 9
-lat, lng = get_location(input('Choose a city in Australia (blank for Sydney) > ') or 'Sydney')
+lat, lng, bbx = get_location(input('Choose a city in Australia (blank for Sydney) > ') or 'Sydney')
 x, y = lat_lngTOxy(lat, lng, z)
+x -= 1
+y -= 1
 
 pygame.init()
-WIN = pygame.display.set_mode((800, 800))
+WIN = pygame.display.set_mode((1200, 900))
 
 placesInf = {}
 SZE = 512
@@ -96,7 +98,7 @@ while run:
     
     WIN.fill((255, 255, 255))
     for yoff in (1, 2, 0):
-        for xoff in (1, 2, 0):
+        for xoff in (1, 2, 0, 3):
             pos = (math.floor(x)+xoff, math.floor(y)+yoff, math.floor(z))
             if pos not in placesInf:
                 pygame.display.update()

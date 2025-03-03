@@ -15,7 +15,7 @@ __all__ = [
     'getHeightInfo'
 ]
 
-def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, float | None]:
+def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, float | None, list[float] | None]:
     """
     Gets the latitude and longitude of a city.
 
@@ -24,7 +24,9 @@ def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, f
         country (str, optional): The country which contains the city. Defaults to 'Australia'.
 
     Returns:
-        float | None, float | None: The latitude, longitude of the city (or None if unknown)
+        float | None: The latitude of the city (or None if unknown)
+        float | None: The longitude of the city (or None if unknown)
+        list[float] | None: The bounding box of the city; in [min lat, max lat, min long, max long] (or None if unknown)
     """
     resp = requests.get(f'https://nominatim.openstreetmap.org/search?format=xml&country={country.replace(" ", "%20")}&city={city.replace(" ", "%20")}', headers={
             'User-Agent': 
@@ -35,8 +37,8 @@ def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, f
     root = ET.fromstring(xml)
     for elm in root.iter('place'):
         vals = elm.attrib
-        return float(vals['lat']), float(vals['lon'])
-    return None, None
+        return float(vals['lat']), float(vals['lon']), [float(i) for i in vals['boundingbox'].split(',')]
+    return None, None, None
 
 def lat_lngTOxy(lat, lng, zoom, partial=False):
     # Thanks to https://stackoverflow.com/questions/37464824/converting-longitude-latitude-to-tile-coordinates !
