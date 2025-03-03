@@ -1,7 +1,10 @@
 # ASE Assessment 1
-## GAME PLAN FOR NOW:
- - A very simple version of sim city or civilization but where it pulls data of Australia's current status and map to use as the starting point.
- - It will be in 3d with a locked camera angle (but with 2 camera angles; perspective or top down)
+## Overview
+This project is a very simple version of sim city or civilization. It uses a map of Australia pulled from an API, and starts you off with current stats from Australia (economics, etc.).
+## How to install
+Ensure you have a version of python3 and it has pip, then run `pip install requirements.txt`.
+## How to run
+Type in the terminal `python3 main.py`in this directory or double click on the file in the file explorer.
 ## APIs used:
  - [Nominatim](https://nominatim.org/)
  - [Nextzen](https://www.nextzen.org/)
