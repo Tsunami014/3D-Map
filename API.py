@@ -15,7 +15,7 @@ __all__ = [
     'getHeightInfo'
 ]
 
-def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, float | None, list[float] | None]:
+def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, float | None, Iterable[float] | None]:
     """
     Gets the latitude and longitude of a city.
 
@@ -47,18 +47,6 @@ def lat_lngTOxy(lat, lng, zoom, partial=False):
     if partial:
         return x, y
     return math.floor(x), math.floor(y)
-
-def planetDataPth(path: str) -> Iterable[str]:
-    resp = requests.get('http://download.openstreetmap.fr/polygons/'+path)
-    resp.raise_for_status()
-    html = resp.text
-    a = re.findall(r'<a href="([^"?/][^"]*)">', html)
-    return a
-
-def planetDataFile(path: str) -> str:
-    resp = requests.get('http://download.openstreetmap.fr/polygons/'+path)
-    resp.raise_for_status()
-    return resp.text
 
 def getPlaceInfo(x, y, z):
     def fix_coords(coords):
