@@ -1,6 +1,5 @@
 import math
 import pygame
-from functools import lru_cache
 from OpenGL.GL import *  # noqa: F403
 
 def tex_coord(x, y, n=4):
@@ -8,12 +7,6 @@ def tex_coord(x, y, n=4):
     m = 1.0 / n
     dx, dy = x * m, y * m
     return dx, dy, dx, dy + m, dx + m, dy + m, dx + m, dy
-
-@lru_cache
-def loadTexture(name, nearest=False):
-    """Load and configure a texture from an image file."""
-    textureSurface = pygame.transform.flip(pygame.image.load(f'textures/{name}.png'), True, False)
-    return surfaceToTexture(textureSurface, nearest)
 
 def surfaceToTexture(sur, nearest=False):
     # Thanks to https://stackoverflow.com/questions/61396799/how-can-i-blit-my-pygame-game-onto-an-opengl-surface !
