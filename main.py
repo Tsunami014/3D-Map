@@ -6,6 +6,9 @@ import pygame
 z = 9
 lat, lng, bbx = get_location(input('Choose a city in Australia (blank for Sydney) > ') or 'Sydney')
 x, y = lat_lngTOxy(lat, lng, z)
+minmaxZoom = 9
+minx, miny = lat_lngTOxy(bbx[0], bbx[2], minmaxZoom)
+maxx, maxy = lat_lngTOxy(bbx[1], bbx[3], minmaxZoom)
 x -= 1
 y -= 1
 
@@ -43,7 +46,7 @@ def drawInf(x, y, z):
         'buildings': (125, 125, 125),
         'other': (255, 50, 255)
     }
-    WIDTH = 3
+    WIDTH = 10
     for shp in inf:
         if shp['group'] == 'earth':
             continue
@@ -85,6 +88,11 @@ while run:
                 z += 1
                 x *= 2
                 y *= 2
+    
+    z = max(min(z, 14), 8)
+    zf = 2**(z-minmaxZoom)
+    x = max(min(x, maxx*zf), minx*zf)
+    y = max(min(y, miny*zf), maxy*zf)
     
     ks = pygame.key.get_pressed()
     if ks[pygame.K_UP]:
