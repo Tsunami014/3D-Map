@@ -65,6 +65,7 @@ class Obj:
         glEnd()
         
         glBegin(GL_LINES)
+        glColor4f(0.5, 0.5, 0.5, 1)
         for edge in self.edges:
             for vertex in edge:
                 glVertex3fv(self.verts[vertex])
@@ -131,6 +132,10 @@ class Mesh(Obj):
         return (
             (conv(x, y), conv(x, y+1), conv(x+1, y+1), conv(x+1, y)) for y in range(len(self.ps)-1) for x in range(len(self.ps[y])-1)
         )
+    
+    @property
+    def tex_coords(self):
+        return [tex_coord(0, 0, 1) for _ in range((len(self.ps)-1)*(len(self.ps[0])-1))]
     
     @property
     def verts(self):

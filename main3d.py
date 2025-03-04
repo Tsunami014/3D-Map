@@ -1,5 +1,6 @@
 import pygame
 from objs import Mesh
+import random
 from OpenGL.GL import *  # noqa: F403
 from OpenGL.GLU import gluPerspective
 
@@ -22,18 +23,16 @@ gluPerspective(45, display[0]/display[1], 0.1, 50.0)
 
 glMatrixMode(GL_MODELVIEW)
 RHO = 40
-glTranslate(0, -12, 0)
+CHUNKSZE = 20
+glTranslate(-CHUNKSZE//2, -12, 0)
 glRotatef(-RHO, 1.0, 0.0, 0.0)
 viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 glLoadIdentity()
 
 objs = [
     Mesh((0, 0, 0), [
-        [0, 1, 2, 3],
-        [1, 2, 3, 2],
-        [2, 3, 2, 1],
-        [3, 2, 1, 0]
-    ])
+        [random.randint(-5, 3) for _ in range(CHUNKSZE)] for __ in range(CHUNKSZE)
+    ], texture='dirt')
 ]
 
 paused = False
