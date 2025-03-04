@@ -30,7 +30,7 @@ glMatrixMode(GL_MODELVIEW)
 
 RHO = 40
 CHUNKSZE = 15
-hei = 10
+hei = 5
 z = 12
 startHei = 1
 glTranslate(-CHUNKSZE//2, -startHei, -CHUNKSZE//2)
@@ -81,8 +81,6 @@ def genMesh(x, y, z, Q):
     for shp in inf:
         if shp['group'] == 'water':
             drawShp(shp, realHei, 0)
-        if shp['group'] == 'earth':
-            continue
         if shp['group'] in COL_D:
             col = COL_D[shp['group']]
         else:
@@ -90,9 +88,20 @@ def genMesh(x, y, z, Q):
         drawShp(shp, heightsur, col)
 
     fact = (SZE//CHUNKSZE, SZE//CHUNKSZE)
+    def getAt(x, y):
+        if x == CHUNKSZE-1:
+            x2 = realHei.get_width()-1
+        else:
+            x2 = x*fact[0]+CHUNKSZE//2
+        if y == CHUNKSZE-1:
+            y2 = 0
+        else:
+            y2 = SZE-(y*fact[1]+CHUNKSZE//2)
+        return realHei.get_at((x2, y2))[1]/255*hei-hei
+
     Q.put([
         ((x-startx)*(CHUNKSZE-1), (starty-y)*(CHUNKSZE-1), 0),
-        [[realHei.get_at((x*fact[0]+CHUNKSZE//2, SZE-(y*fact[1]+CHUNKSZE//2)))[1]/255*hei-hei for x in range(CHUNKSZE)] for y in range(CHUNKSZE)],
+        [[getAt(x, y) for x in range(CHUNKSZE)] for y in range(CHUNKSZE)],
         pygame.image.tobytes(heightsur, 'RGB')
     ])
 
