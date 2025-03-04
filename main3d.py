@@ -97,7 +97,12 @@ def genMesh(x, y, z, Q):
             y2 = 0
         else:
             y2 = SZE-(y*fact[1]+CHUNKSZE//2)
-        return realHei.get_at((x2, y2))[1]/255*hei-hei
+        px = realHei.get_at((x2, y2))
+        if px[1] > 250:
+            outh = 0
+        else:
+            outh = px[1]/255
+        return max(outh, 0)*hei-hei
 
     Q.put([
         ((x-startx)*(CHUNKSZE-1), (starty-y)*(CHUNKSZE-1), 0),
