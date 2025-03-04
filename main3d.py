@@ -4,6 +4,7 @@ from API import get_location, lat_lngTOxy, getPlaceInfo, getHeightInfo
 from OpenGL.GL import *  # noqa: F403
 from OpenGL.GLU import gluPerspective
 from functools import lru_cache
+from threading import Thread
 
 # Initialize Pygame and OpenGL
 pygame.init()
@@ -25,20 +26,22 @@ gluPerspective(45, display[0]/display[1], 0.1, 50.0)
 glMatrixMode(GL_MODELVIEW)
 
 RHO = 40
-CHUNKSZE = 30
+CHUNKSZE = 15
 hei = 10
-glTranslate(-CHUNKSZE//2, -12, 0)
+z = 10
+startHei = 8
+glTranslate(-CHUNKSZE//2, -startHei, -CHUNKSZE//2)
 glRotatef(-RHO, 1.0, 0.0, 0.0)
 
 viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 glLoadIdentity()
 
-z = 9
 lat, lng, bbx = get_location('Sydney')
 x, y = lat_lngTOxy(lat, lng, z)
-SZE = 512
+startx, starty = x, y
 @lru_cache
 def genMesh(x, y, z):
+    SZE = 512
     inf = getPlaceInfo(x, y, z)
     heightsur = getHeightInfo(x, y, z)
     inf.sort(key=lambda x: x['importance'])
@@ -83,15 +86,25 @@ def genMesh(x, y, z):
             col = COL_D['other']
         drawShp(shp, heightsur, col)
 
-    tx = surfaceToTexture(heightsur)
     fact = (SZE//CHUNKSZE, SZE//CHUNKSZE)
-    return Mesh((0, 0, 0), [
-        [realHei.get_at((x*fact[0]+CHUNKSZE//2, SZE-(y*fact[1]+CHUNKSZE//2)))[1]/255*hei-hei for x in range(CHUNKSZE)] for y in range(CHUNKSZE)
-    ], texture=tx)
+    return ((x-startx)*(CHUNKSZE-1), (starty-y)*(CHUNKSZE-1), 0), \
+           [[realHei.get_at((x*fact[0]+CHUNKSZE//2, SZE-(y*fact[1]+CHUNKSZE//2)))[1]/255*hei-hei for x in range(CHUNKSZE)] for y in range(CHUNKSZE)], \
+           heightsur
 
-objs = [
-    genMesh(x, y, z)
-]
+objs = []
+
+progressMs = []
+def TgenMesh(x, y, z):
+    def gm():
+        msh = genMesh(x, y, z)
+        progressMs.append(msh)
+    Thread(target=gm, daemon=True).start()
+
+TgenMesh(x, y, z)
+TgenMesh(x+1, y, z)
+TgenMesh(x-1, y, z)
+TgenMesh(x, y+1, z)
+TgenMesh(x, y-1, z)
 
 paused = False
 run = True
@@ -133,6 +146,12 @@ while run:
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glPushMatrix()
+        
+        if progressMs != []:
+            pos, arr, sur = progressMs.pop(0)
+            objs.append(Mesh(
+                pos, arr, texture=surfaceToTexture(sur)
+            ))
         
         for obj in objs:
             obj.render()
