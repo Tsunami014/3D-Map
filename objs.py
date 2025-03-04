@@ -1,5 +1,4 @@
 import math
-from typing import Iterable
 import pygame
 from functools import lru_cache
 from OpenGL.GL import *  # noqa: F403
@@ -37,22 +36,46 @@ def surfaceToTexture(sur, nearest=False):
         glGenerateMipmap(GL_TEXTURE_2D)
     return texid
 
-class Obj:
-    def __init__(self, texture=None):
+class Mesh:
+    def __init__(self, corner, heights, sze=1, texture=None):
+        self.ps = [[
+            (corner[0] + x*sze, corner[1] + y*sze, corner[2] + heights[y][x])
+            for x in range(len(heights[y]))
+        ] for y in range(len(heights))]
         self.textureId = texture if texture is not None else None
 
-    tex_coords: Iterable[Iterable[float]]
+    @property
+    def tex_coords(self):
+        amnt = (len(self.ps)-1)*(len(self.ps[0])-1)
+        wid = math.floor(math.sqrt(amnt))
+        return [tex_coord(i%wid, math.floor(i/wid), wid) for i in range(amnt)]
 
-    verts: Iterable[Iterable[float]]
+    @property
+    def verts(self):
+        return [j for i in self.ps for j in i]
 
     # Define edges for wireframe rendering
-    edges: Iterable[Iterable[int]]
+    @property
+    def edges(self):
+        def conv(x, y):
+            return x + y * len(self.ps[0])
+        return [
+            (conv(x, y), conv(x+1, y)) for y in range(len(self.ps)-1) for x in range(len(self.ps[y])-1)
+        ] + [
+            (conv(x, y), conv(x, y+1)) for y in range(len(self.ps)-1) for x in range(len(self.ps[y])-1)
+        ]
     """A tuple of indices referring to the verts() function, which returns the cube's corner points
 
     What idx of vertex (in the verts func) goes for each edge of the shape"""
 
     # Define surfaces for solid rendering
-    surfaces: Iterable[Iterable[int]]
+    @property
+    def surfaces(self):
+        def conv(x, y):
+            return x + y * len(self.ps[0])
+        return (
+            (conv(x, y), conv(x, y+1), conv(x+1, y+1), conv(x+1, y)) for y in range(len(self.ps)-1) for x in range(len(self.ps[y])-1)
+        )
     """A tuple of indices referring to the verts() function, which returns the cube's corner points
 
     What idx of vertex (in the verts func) goes for each solid surface (face)"""
@@ -78,75 +101,3 @@ class Obj:
             for vertex in edge:
                 glVertex3fv(vs[vertex])
         glEnd()
-
-class Plane:
-    def __init__(self, corner, width, height):
-        self.corner = corner
-        self.size = (width, height)
-    
-    def render(self):
-        glColor4f(0.5, 0.5, 0.5, 1)
-        glBegin(GL_QUADS)
-        glVertex3f(*self.corner)
-        glVertex3f(self.corner[0]+self.size[0], self.corner[1], self.corner[2])
-        glVertex3f(self.corner[0]+self.size[0], self.corner[1]+self.size[1], self.corner[2])
-        glVertex3f(self.corner[0], self.corner[1]+self.size[0], self.corner[2])
-        glEnd()
-
-class Cube(Obj):
-    def __init__(self, x, y, z, texture=None):
-        self.x, self.y, self.z = x, y, z
-        super().__init__(texture)
-    
-    @property
-    def tex_coords(self):
-        # Top, bottom, side*4
-        return [tex_coord(0, 0), tex_coord(1, 0)] + [tex_coord(2, 0)] * 4
-
-    @property
-    def verts(self):
-        # Return the 8 corner vertices of a cube centered at (x, y, z).
-        return (
-            (1+self.x, -1+self.y, -1+self.z), (1+self.x, 1+self.y, -1+self.z), (-1+self.x, 1+self.y, -1+self.z), (-1+self.x, -1+self.y, -1+self.z),
-            (1+self.x, -1+self.y, 1+self.z), (1+self.x, 1+self.y, 1+self.z), (-1+self.x, -1+self.y, 1+self.z), (-1+self.x, 1+self.y, 1+self.z)
-        )
-
-    edges = ((0,1), (0,3), (0,4), (2,1), (2,3), (2,7), (6,3), (6,4), (6,7), (5,1), (5,4), (5,7))
-
-    surfaces = ((0,1,2,3), (3,2,7,6), (6,7,5,4), (4,5,1,0), (1,5,7,2), (4,0,3,6))
-
-class Mesh(Obj):
-    def __init__(self, corner, heights, sze=1, texture=None):
-        self.ps = [[
-            (corner[0] + x*sze, corner[1] + y*sze, corner[2] + heights[y][x])
-            for x in range(len(heights[y]))
-        ] for y in range(len(heights))]
-        super().__init__(texture)
-    
-    @property
-    def edges(self):
-        def conv(x, y):
-            return x + y * len(self.ps[0])
-        return [
-            (conv(x, y), conv(x+1, y)) for y in range(len(self.ps)-1) for x in range(len(self.ps[y])-1)
-        ] + [
-            (conv(x, y), conv(x, y+1)) for y in range(len(self.ps)-1) for x in range(len(self.ps[y])-1)
-        ]
-    
-    @property
-    def surfaces(self):
-        def conv(x, y):
-            return x + y * len(self.ps[0])
-        return (
-            (conv(x, y), conv(x, y+1), conv(x+1, y+1), conv(x+1, y)) for y in range(len(self.ps)-1) for x in range(len(self.ps[y])-1)
-        )
-    
-    @property
-    def tex_coords(self):
-        amnt = (len(self.ps)-1)*(len(self.ps[0])-1)
-        wid = math.floor(math.sqrt(amnt))
-        return [tex_coord(i%wid, math.floor(i/wid), wid) for i in range(amnt)]
-    
-    @property
-    def verts(self):
-        return [j for i in self.ps for j in i]

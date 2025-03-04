@@ -7,9 +7,11 @@ from OpenGL.GLU import gluPerspective
 from functools import lru_cache
 from multiprocessing import Process, Queue
 
+city = input('Choose a city in Australia (blank for Sydney) > ') or 'Sydney'
+
 # Initialize Pygame and OpenGL
 pygame.init()
-display = (800, 600)
+display = (1200, 900)
 screen = pygame.display.set_mode(display, pygame.DOUBLEBUF | pygame.OPENGL)
 
 glEnable(GL_DEPTH_TEST)
@@ -29,15 +31,15 @@ glMatrixMode(GL_MODELVIEW)
 RHO = 40
 CHUNKSZE = 15
 hei = 10
-z = 10
-startHei = 8
+z = 12
+startHei = 1
 glTranslate(-CHUNKSZE//2, -startHei, -CHUNKSZE//2)
 glRotatef(-RHO, 1.0, 0.0, 0.0)
 
 viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 glLoadIdentity()
 
-lat, lng, bbx = get_location('Sydney')
+lat, lng, bbx = get_location(city)
 x, y = lat_lngTOxy(lat, lng, z)
 startx, starty = x, y
 SZE = 512
