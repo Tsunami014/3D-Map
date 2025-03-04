@@ -172,6 +172,10 @@ while run:
             glTranslate(-move_speed, 0, 0)
         if keypress[pygame.K_a]:
             glTranslate(move_speed, 0, 0)
+        if keypress[pygame.K_COMMA]:
+            glTranslate(0, 0, move_speed)
+        if keypress[pygame.K_PERIOD]:
+            glTranslate(0, 0, -move_speed)
 
         glMultMatrixf(viewMatrix)
         viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
