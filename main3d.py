@@ -1,11 +1,11 @@
-from queue import Empty
+from queue import Empty, Queue
 import pygame
 from objs import Mesh, surfaceToTexture
 from API import get_location, lat_lngTOxy, getPlaceInfo, getHeightInfo, cityChooser
 from OpenGL.GL import *  # noqa: F403
 from OpenGL.GLU import gluPerspective
 from functools import lru_cache
-from multiprocessing import Process, Queue
+from threading import Thread
 
 city = cityChooser()
 
@@ -113,7 +113,7 @@ def genMesh(x, y, z, Q):
 class progressMesh:
     def __init__(self, x, y, z):
         self.Q = Queue()
-        self.pro = Process(target=genMesh, args=(x, y, z, self.Q), daemon=True)
+        self.pro = Thread(target=genMesh, args=(x, y, z, self.Q), daemon=True)
         self.pro.start()
     
     def render(self):
