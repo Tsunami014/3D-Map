@@ -91,7 +91,7 @@ while run:
     
     z = max(min(z, 14), 8)
     zf = 2**(z-minmaxZoom)
-    x = max(min(x, maxx*zf), minx*zf)
+    x = max(min(x, maxx*zf+int(z>10)), minx*zf)
     y = max(min(y, miny*zf), maxy*zf)
     
     ks = pygame.key.get_pressed()
