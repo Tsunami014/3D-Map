@@ -21,10 +21,13 @@ glMatrixMode(GL_PROJECTION)
 gluPerspective(45, display[0]/display[1], 0.1, 50.0)
 
 glMatrixMode(GL_MODELVIEW)
-gluLookAt(0, -8, 0, # Look from
-          0, 0, -5, # Look at
-          0, 0, 1 # Positive y up vector
+RHO = 30
+gluLookAt(0, -2, 4, # Look from
+    0, 0, 0, # Look at
+    0, 0, 1 # Positive y up vector
 )
+glTranslate(0, -3, 0)
+glRotatef(-RHO, 1.0, 0.0, 0.0)
 viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 glLoadIdentity()
 
@@ -34,6 +37,7 @@ objs = [
 
 paused = False
 run = True
+clock = pygame.time.Clock()
 while run:
     mouseMove = [0, 0]
     for event in pygame.event.get():
@@ -53,17 +57,17 @@ while run:
         # Movement controls
         move_speed = 0.3
         if keypress[pygame.K_w]:
-            glTranslate(0, -move_speed, move_speed)
+            glRotatef(RHO, 1.0, 0.0, 0.0)
+            glTranslate(0, 0, move_speed)
+            glRotatef(-RHO, 1.0, 0.0, 0.0)
         if keypress[pygame.K_s]:
-            glTranslate(0, move_speed, -move_speed)
+            glRotatef(RHO, 1.0, 0.0, 0.0)
+            glTranslate(0, 0, -move_speed)
+            glRotatef(-RHO, 1.0, 0.0, 0.0)
         if keypress[pygame.K_d]:
             glTranslate(-move_speed, 0, 0)
         if keypress[pygame.K_a]:
             glTranslate(move_speed, 0, 0)
-        if keypress[pygame.K_LSHIFT]:
-            glTranslate(0, 0.5, 0)
-        if keypress[pygame.K_SPACE]:
-            glTranslate(0, -0.5, 0)
 
         glMultMatrixf(viewMatrix)
         viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
@@ -82,6 +86,6 @@ while run:
         glPopMatrix()
         
         pygame.display.flip()
-        pygame.time.wait(10)
+        clock.tick(60)
 
 pygame.quit()
