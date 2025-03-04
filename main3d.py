@@ -22,10 +22,12 @@ glMatrixMode(GL_PROJECTION)
 gluPerspective(45, display[0]/display[1], 0.1, 50.0)
 
 glMatrixMode(GL_MODELVIEW)
+
 RHO = 40
-CHUNKSZE = 20
+CHUNKSZE = 30
 glTranslate(-CHUNKSZE//2, -12, 0)
 glRotatef(-RHO, 1.0, 0.0, 0.0)
+
 viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 glLoadIdentity()
 

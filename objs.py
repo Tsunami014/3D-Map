@@ -57,18 +57,19 @@ class Obj:
             glBindTexture(GL_TEXTURE_2D, self.textureId)
             block = self.tex_coords
         glBegin(GL_QUADS)
+        vs = self.verts
         for i, surface in enumerate(self.surfaces):
             for j, vertex in enumerate(surface):
                 if self.textureId is not None:
                     glTexCoord2f(block[i][2*j], block[i][2*j+1])
-                glVertex3fv(self.verts[vertex])
+                glVertex3fv(vs[vertex])
         glEnd()
         
         glBegin(GL_LINES)
         glColor4f(0.5, 0.5, 0.5, 1)
         for edge in self.edges:
             for vertex in edge:
-                glVertex3fv(self.verts[vertex])
+                glVertex3fv(vs[vertex])
         glEnd()
 
 class Plane:

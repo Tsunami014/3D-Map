@@ -2,15 +2,12 @@ import requests
 import io
 import math
 import pygame
-import re
 from typing import Tuple, Iterable
 import xml.etree.ElementTree as ET
 
 __all__ = [
     'get_location',
     'lat_lngTOxy',
-    'planetDataPth',
-    'planetDataFile',
     'getPlaceInfo',
     'getHeightInfo'
 ]
