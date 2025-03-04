@@ -33,14 +33,12 @@ def loadTexture(name, nearest=False):
     return texid
 
 class Obj:
-    def __init__(self, x, y, z, texture=None):
-        self.x, self.y, self.z = x, y, z
+    def __init__(self, texture=None):
         self.textureId = loadTexture(texture) if texture is not None else None
 
     tex_coords: Iterable[Iterable[float]]
 
-    def verts(self) -> Iterable[Iterable[float]]:
-        pass
+    verts: Iterable[Iterable[float]]
 
     # Define edges for wireframe rendering
     edges: Iterable[Iterable[int]]
@@ -57,18 +55,19 @@ class Obj:
     def render(self):
         if self.textureId is not None:
             glBindTexture(GL_TEXTURE_2D, self.textureId)
+            block = self.tex_coords
         glBegin(GL_QUADS)
-        block = self.tex_coords
         for i, surface in enumerate(self.surfaces):
             for j, vertex in enumerate(surface):
-                glTexCoord2f(block[i][2*j], block[i][2*j+1])
-                glVertex3fv(self.verts()[vertex])
+                if self.textureId is not None:
+                    glTexCoord2f(block[i][2*j], block[i][2*j+1])
+                glVertex3fv(self.verts[vertex])
         glEnd()
         
         glBegin(GL_LINES)
         for edge in self.edges:
             for vertex in edge:
-                glVertex3fv(self.verts()[vertex])
+                glVertex3fv(self.verts[vertex])
         glEnd()
 
 class Plane:
@@ -86,11 +85,16 @@ class Plane:
         glEnd()
 
 class Cube(Obj):
+    def __init__(self, x, y, z, texture=None):
+        self.x, self.y, self.z = x, y, z
+        super().__init__(texture)
+    
     @property
     def tex_coords(self):
         # Top, bottom, side*4
         return [tex_coord(0, 0), tex_coord(1, 0)] + [tex_coord(2, 0)] * 4
 
+    @property
     def verts(self):
         # Return the 8 corner vertices of a cube centered at (x, y, z).
         return (
@@ -101,3 +105,33 @@ class Cube(Obj):
     edges = ((0,1), (0,3), (0,4), (2,1), (2,3), (2,7), (6,3), (6,4), (6,7), (5,1), (5,4), (5,7))
 
     surfaces = ((0,1,2,3), (3,2,7,6), (6,7,5,4), (4,5,1,0), (1,5,7,2), (4,0,3,6))
+
+class Mesh(Obj):
+    def __init__(self, corner, heights, sze=1, texture=None):
+        self.ps = [[
+            (corner[0] + x*sze, corner[1] + y*sze, corner[2] + heights[y][x])
+            for x in range(len(heights[y]))
+        ] for y in range(len(heights))]
+        super().__init__(texture)
+    
+    @property
+    def edges(self):
+        def conv(x, y):
+            return x + y * len(self.ps[0])
+        return [
+            (conv(x, y), conv(x+1, y)) for y in range(len(self.ps)-1) for x in range(len(self.ps[y])-1)
+        ] + [
+            (conv(x, y), conv(x, y+1)) for y in range(len(self.ps)-1) for x in range(len(self.ps[y])-1)
+        ]
+    
+    @property
+    def surfaces(self):
+        def conv(x, y):
+            return x + y * len(self.ps[0])
+        return (
+            (conv(x, y), conv(x, y+1), conv(x+1, y+1), conv(x+1, y)) for y in range(len(self.ps)-1) for x in range(len(self.ps[y])-1)
+        )
+    
+    @property
+    def verts(self):
+        return [j for i in self.ps for j in i]

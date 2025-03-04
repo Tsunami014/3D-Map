@@ -1,7 +1,7 @@
 import pygame
-from objs import Cube
+from objs import Mesh
 from OpenGL.GL import *  # noqa: F403
-from OpenGL.GLU import gluPerspective, gluLookAt
+from OpenGL.GLU import gluPerspective
 
 # Initialize Pygame and OpenGL
 pygame.init()
@@ -21,25 +21,25 @@ glMatrixMode(GL_PROJECTION)
 gluPerspective(45, display[0]/display[1], 0.1, 50.0)
 
 glMatrixMode(GL_MODELVIEW)
-RHO = 30
-gluLookAt(0, -2, 4, # Look from
-    0, 0, 0, # Look at
-    0, 0, 1 # Positive y up vector
-)
-glTranslate(0, -3, 0)
+RHO = 40
+glTranslate(0, -12, 0)
 glRotatef(-RHO, 1.0, 0.0, 0.0)
 viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 glLoadIdentity()
 
 objs = [
-    Cube(0, 0, 0)
+    Mesh((0, 0, 0), [
+        [0, 1, 2, 3],
+        [1, 2, 3, 2],
+        [2, 3, 2, 1],
+        [3, 2, 1, 0]
+    ])
 ]
 
 paused = False
 run = True
 clock = pygame.time.Clock()
 while run:
-    mouseMove = [0, 0]
     for event in pygame.event.get():
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
             run = False
