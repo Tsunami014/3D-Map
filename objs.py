@@ -47,20 +47,6 @@ class Mesh:
     def verts(self):
         return [j for i in self.ps for j in i]
 
-    # Define edges for wireframe rendering
-    @property
-    def edges(self):
-        def conv(x, y):
-            return x + y * len(self.ps[0])
-        return [
-            (conv(x, y), conv(x+1, y)) for y in range(len(self.ps)-1) for x in range(len(self.ps[y])-1)
-        ] + [
-            (conv(x, y), conv(x, y+1)) for y in range(len(self.ps)-1) for x in range(len(self.ps[y])-1)
-        ]
-    """A tuple of indices referring to the verts() function, which returns the cube's corner points
-
-    What idx of vertex (in the verts func) goes for each edge of the shape"""
-
     # Define surfaces for solid rendering
     @property
     def surfaces(self):
@@ -77,20 +63,11 @@ class Mesh:
         if self.textureId is not None:
             glBindTexture(GL_TEXTURE_2D, self.textureId)
             block = self.tex_coords
-        glEnable(GL_TEXTURE_2D)
         glBegin(GL_QUADS)
         vs = self.verts
         for i, surface in enumerate(self.surfaces):
             for j, vertex in enumerate(surface):
                 if self.textureId is not None:
                     glTexCoord2f(block[i][2*j], block[i][2*j+1])
-                glVertex3fv(vs[vertex])
-        glEnd()
-        glDisable(GL_TEXTURE_2D)
-        
-        glBegin(GL_LINES)
-        glColor4f(0.5, 0.5, 0.5, 1)
-        for edge in self.edges:
-            for vertex in edge:
                 glVertex3fv(vs[vertex])
         glEnd()

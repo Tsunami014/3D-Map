@@ -32,7 +32,7 @@ RHO = 40
 CHUNKSZE = 15
 hei = 5
 z = 12
-startHei = 1
+startHei = 4
 glTranslate(-CHUNKSZE//2, -startHei, -CHUNKSZE//2)
 glRotatef(-RHO, 1.0, 0.0, 0.0)
 
@@ -123,10 +123,16 @@ class progressMesh:
 
 objs = [
     progressMesh(x, y, z),
+
     progressMesh(x+1, y, z),
     progressMesh(x-1, y, z),
     progressMesh(x, y+1, z),
     progressMesh(x, y-1, z),
+
+    progressMesh(x+1, y+1, z),
+    progressMesh(x-1, y-1, z),
+    progressMesh(x-1, y+1, z),
+    progressMesh(x+1, y-1, z),
 ]
 
 paused = False
@@ -148,7 +154,7 @@ while run:
         glLoadIdentity()
 
         # Movement controls
-        move_speed = 0.3
+        move_speed = 0.5
         if keypress[pygame.K_w]:
             glRotatef(RHO, 1.0, 0.0, 0.0)
             glTranslate(0, 0, move_speed)
@@ -170,8 +176,10 @@ while run:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glPushMatrix()
         
+        glEnable(GL_TEXTURE_2D)
         for obj in objs:
             obj.render()
+        glDisable(GL_TEXTURE_2D)
 
         glPopMatrix()
         
