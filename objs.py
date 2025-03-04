@@ -1,3 +1,4 @@
+import math
 from typing import Iterable
 import pygame
 from functools import lru_cache
@@ -7,14 +8,18 @@ def tex_coord(x, y, n=4):
     """Calculate texture coordinates for a given (x, y) position in an n x n texture atlas."""
     m = 1.0 / n
     dx, dy = x * m, y * m
-    return dx, dy, dx + m, dy, dx + m, dy + m, dx, dy + m
+    return dx, dy, dx, dy + m, dx + m, dy + m, dx + m, dy
 
 @lru_cache
 def loadTexture(name, nearest=False):
     """Load and configure a texture from an image file."""
     textureSurface = pygame.transform.flip(pygame.image.load(f'textures/{name}.png'), True, False)
-    textureData = pygame.image.tostring(textureSurface, "RGBA", 1)
-    width, height = textureSurface.get_size()
+    return surfaceToTexture(textureSurface, nearest)
+
+def surfaceToTexture(sur, nearest=False):
+    # Thanks to https://stackoverflow.com/questions/61396799/how-can-i-blit-my-pygame-game-onto-an-opengl-surface !
+    textureData = pygame.image.tostring(sur, "RGBA", 1)
+    width, height = sur.get_size()
 
     glEnable(GL_TEXTURE_2D)
     texid = glGenTextures(1)
@@ -34,7 +39,7 @@ def loadTexture(name, nearest=False):
 
 class Obj:
     def __init__(self, texture=None):
-        self.textureId = loadTexture(texture) if texture is not None else None
+        self.textureId = texture if texture is not None else None
 
     tex_coords: Iterable[Iterable[float]]
 
@@ -56,6 +61,7 @@ class Obj:
         if self.textureId is not None:
             glBindTexture(GL_TEXTURE_2D, self.textureId)
             block = self.tex_coords
+        glEnable(GL_TEXTURE_2D)
         glBegin(GL_QUADS)
         vs = self.verts
         for i, surface in enumerate(self.surfaces):
@@ -64,6 +70,7 @@ class Obj:
                     glTexCoord2f(block[i][2*j], block[i][2*j+1])
                 glVertex3fv(vs[vertex])
         glEnd()
+        glDisable(GL_TEXTURE_2D)
         
         glBegin(GL_LINES)
         glColor4f(0.5, 0.5, 0.5, 1)
@@ -136,7 +143,9 @@ class Mesh(Obj):
     
     @property
     def tex_coords(self):
-        return [tex_coord(0, 0, 1) for _ in range((len(self.ps)-1)*(len(self.ps[0])-1))]
+        amnt = (len(self.ps)-1)*(len(self.ps[0])-1)
+        wid = math.floor(math.sqrt(amnt))
+        return [tex_coord(i%wid, math.floor(i/wid), wid) for i in range(amnt)]
     
     @property
     def verts(self):

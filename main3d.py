@@ -1,6 +1,6 @@
 import pygame
-from objs import Mesh
-from API import get_location, lat_lngTOxy, getHeightInfo
+from objs import Mesh, surfaceToTexture
+from API import get_location, lat_lngTOxy, getHeightInfo, getInf
 from OpenGL.GL import *  # noqa: F403
 from OpenGL.GLU import gluPerspective
 
@@ -37,10 +37,12 @@ lat, lng, bbx = get_location('Sydney')
 x, y = lat_lngTOxy(lat, lng, z)
 def genMesh(x, y, z):
     map = getHeightInfo(x, y, z)
+    sur = getInf(x, y, z, True)
+    tx = surfaceToTexture(sur)
     fact = (map.get_width()//CHUNKSZE, map.get_height()//CHUNKSZE)
     return Mesh((0, 0, 0), [
         [map.get_at((x*fact[0], y*fact[1]))[1]/255*hei-hei for x in range(CHUNKSZE)] for y in range(CHUNKSZE)
-    ], texture='dirt')
+    ], texture=tx)
 
 objs = [
     genMesh(x, y, z)
@@ -86,12 +88,9 @@ while run:
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glPushMatrix()
-        glEnable(GL_TEXTURE_2D)
         
         for obj in objs:
             obj.render()
-        
-        glDisable(GL_TEXTURE_2D)
 
         glPopMatrix()
         
