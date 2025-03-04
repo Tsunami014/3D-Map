@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: main.py",
+            "name": "Python: main3d.py",
             "type": "debugpy",
             "request": "launch",
-            "program": "main.py",
+            "program": "main3d.py",
             "justMyCode": false
         },
         {

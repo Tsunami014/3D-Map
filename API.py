@@ -12,6 +12,12 @@ __all__ = [
     'getHeightInfo'
 ]
 
+def cityChooser():
+    chosen = input('Choose a city (blank for "Sydney Australia") > ') or 'Sydney'.replace(',', ' ').replace('  ', ' ').strip()
+    if chosen.count(' ') == 1:
+        return chosen.split(' ')
+    return (chosen,)
+
 def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, float | None, Iterable[float] | None]:
     """
     Gets the latitude and longitude of a city.

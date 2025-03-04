@@ -1,13 +1,13 @@
 from queue import Empty
 import pygame
 from objs import Mesh, surfaceToTexture
-from API import get_location, lat_lngTOxy, getPlaceInfo, getHeightInfo
+from API import get_location, lat_lngTOxy, getPlaceInfo, getHeightInfo, cityChooser
 from OpenGL.GL import *  # noqa: F403
 from OpenGL.GLU import gluPerspective
 from functools import lru_cache
 from multiprocessing import Process, Queue
 
-city = input('Choose a city in Australia (blank for Sydney) > ') or 'Sydney'
+city = cityChooser()
 
 # Initialize Pygame and OpenGL
 pygame.init()
@@ -39,7 +39,7 @@ glRotatef(-RHO, 1.0, 0.0, 0.0)
 viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 glLoadIdentity()
 
-lat, lng, bbx = get_location(city)
+lat, lng, bbx = get_location(*city)
 x, y = lat_lngTOxy(lat, lng, z)
 startx, starty = x, y
 SZE = 512

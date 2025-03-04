@@ -1,10 +1,10 @@
 import math
-from API import get_location, lat_lngTOxy, getPlaceInfo, getHeightInfo
+from API import get_location, lat_lngTOxy, getPlaceInfo, getHeightInfo, cityChooser
 import pygame
 from threading import Thread
 
 z = 9
-lat, lng, bbx = get_location(input('Choose a city in Australia (blank for Sydney) > ') or 'Sydney')
+lat, lng, bbx = get_location(*cityChooser())
 x, y = lat_lngTOxy(lat, lng, z)
 minmaxZoom = 9
 minx, miny = lat_lngTOxy(bbx[0], bbx[2], minmaxZoom)
