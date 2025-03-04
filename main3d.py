@@ -1,6 +1,6 @@
 import pygame
 from objs import Mesh
-import random
+from API import get_location, lat_lngTOxy, getHeightInfo
 from OpenGL.GL import *  # noqa: F403
 from OpenGL.GLU import gluPerspective
 
@@ -25,16 +25,25 @@ glMatrixMode(GL_MODELVIEW)
 
 RHO = 40
 CHUNKSZE = 30
+hei = 10
 glTranslate(-CHUNKSZE//2, -12, 0)
 glRotatef(-RHO, 1.0, 0.0, 0.0)
 
 viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 glLoadIdentity()
 
-objs = [
-    Mesh((0, 0, 0), [
-        [random.randint(-5, 3) for _ in range(CHUNKSZE)] for __ in range(CHUNKSZE)
+z = 9
+lat, lng, bbx = get_location('Sydney')
+x, y = lat_lngTOxy(lat, lng, z)
+def genMesh(x, y, z):
+    map = getHeightInfo(x, y, z)
+    fact = (map.get_width()//CHUNKSZE, map.get_height()//CHUNKSZE)
+    return Mesh((0, 0, 0), [
+        [map.get_at((x*fact[0], y*fact[1]))[1]/255*hei-hei for x in range(CHUNKSZE)] for y in range(CHUNKSZE)
     ], texture='dirt')
+
+objs = [
+    genMesh(x, y, z)
 ]
 
 paused = False
