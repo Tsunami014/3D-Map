@@ -1,10 +1,11 @@
+from queue import Empty
 import pygame
 from objs import Mesh, surfaceToTexture
 from API import get_location, lat_lngTOxy, getPlaceInfo, getHeightInfo
 from OpenGL.GL import *  # noqa: F403
 from OpenGL.GLU import gluPerspective
 from functools import lru_cache
-from threading import Thread
+from multiprocessing import Process, Queue
 
 # Initialize Pygame and OpenGL
 pygame.init()
@@ -39,9 +40,9 @@ glLoadIdentity()
 lat, lng, bbx = get_location('Sydney')
 x, y = lat_lngTOxy(lat, lng, z)
 startx, starty = x, y
+SZE = 512
 @lru_cache
-def genMesh(x, y, z):
-    SZE = 512
+def genMesh(x, y, z, Q):
     inf = getPlaceInfo(x, y, z)
     heightsur = getHeightInfo(x, y, z)
     inf.sort(key=lambda x: x['importance'])
@@ -87,24 +88,35 @@ def genMesh(x, y, z):
         drawShp(shp, heightsur, col)
 
     fact = (SZE//CHUNKSZE, SZE//CHUNKSZE)
-    return ((x-startx)*(CHUNKSZE-1), (starty-y)*(CHUNKSZE-1), 0), \
-           [[realHei.get_at((x*fact[0]+CHUNKSZE//2, SZE-(y*fact[1]+CHUNKSZE//2)))[1]/255*hei-hei for x in range(CHUNKSZE)] for y in range(CHUNKSZE)], \
-           heightsur
+    Q.put([
+        ((x-startx)*(CHUNKSZE-1), (starty-y)*(CHUNKSZE-1), 0),
+        [[realHei.get_at((x*fact[0]+CHUNKSZE//2, SZE-(y*fact[1]+CHUNKSZE//2)))[1]/255*hei-hei for x in range(CHUNKSZE)] for y in range(CHUNKSZE)],
+        pygame.image.tobytes(heightsur, 'RGB')
+    ])
 
-objs = []
+class progressMesh:
+    def __init__(self, x, y, z):
+        self.Q = Queue()
+        self.pro = Process(target=genMesh, args=(x, y, z, self.Q), daemon=True)
+        self.pro.start()
+    
+    def render(self):
+        try:
+            pos, arr, sur = self.Q.get()
+        except Empty:
+            return
+        objs.remove(self)
+        objs.append(Mesh(
+            pos, arr, texture=surfaceToTexture(pygame.image.frombytes(sur, (SZE, SZE), 'RGB'))
+        ))
 
-progressMs = []
-def TgenMesh(x, y, z):
-    def gm():
-        msh = genMesh(x, y, z)
-        progressMs.append(msh)
-    Thread(target=gm, daemon=True).start()
-
-TgenMesh(x, y, z)
-TgenMesh(x+1, y, z)
-TgenMesh(x-1, y, z)
-TgenMesh(x, y+1, z)
-TgenMesh(x, y-1, z)
+objs = [
+    progressMesh(x, y, z),
+    progressMesh(x+1, y, z),
+    progressMesh(x-1, y, z),
+    progressMesh(x, y+1, z),
+    progressMesh(x, y-1, z),
+]
 
 paused = False
 run = True
@@ -146,12 +158,6 @@ while run:
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glPushMatrix()
-        
-        if progressMs != []:
-            pos, arr, sur = progressMs.pop(0)
-            objs.append(Mesh(
-                pos, arr, texture=surfaceToTexture(sur)
-            ))
         
         for obj in objs:
             obj.render()
