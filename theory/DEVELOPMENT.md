@@ -24,15 +24,17 @@ gantt
     title A Gantt Diagram
     dateFormat DD-MM-YY
     section Design
-        Conceptualising idea   :24-02-25, 26-02-25
-        Finding the right API  :26-02-25, 03-03-25
+        Determining specifications & requirements   :24-02-25, 26-02-25
+        Finding the right API        :26-02-25, 03-03-25
     section Development
-        Making POCs            :26-02-25, 03-03-25
-        Work on main program   :03-03-25, 07-03-25
-        Finish main program    :milestone, crit, dne, 07-03-25, 0d
+        Making POCs (integration)    :26-02-25, 03-03-25
+        Work on main program         :03-03-25, 15-03-25
+        Finish main program          :milestone, crit, dne, 15-03-25, 0d
     section Maintenance
         Ensuring the API still works :after dne, 5d
 ```
+## Structure chart
+![https://excalidraw.com/#json=TanUcKfRZK3sFyNSI8kkv,OGm_RV8n3kSjwTS60DsOgQ](structchart.png)
 # Development
 # Integration
 # Testing and debugging
