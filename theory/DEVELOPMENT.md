@@ -35,6 +35,50 @@ gantt
 ```
 ## Structure chart
 ![https://excalidraw.com/#json=TanUcKfRZK3sFyNSI8kkv,OGm_RV8n3kSjwTS60DsOgQ](structchart.png)
+## Algorithms
+```js
+START
+    INPUT city
+    z = 9
+    x, y = get_XY(city, z)
+    money = get_money(city)
+    build_rate = get_build_rate(city)
+    WHILE true
+        INPUT keys
+        IF quit IN keys THEN
+            BREAK
+        ENDIF
+        IF up IN keys THEN
+            y -= 1
+        ELSEIF down IN keys THEN
+            y += 1
+        ENDIF
+        IF left IN keys THEN
+            x -= 1
+        ELSEIF right IN keys THEN
+            x += 1
+        ENDIF
+        IF comma IN keys THEN
+            z += 1
+        ELSEIF period IN keys THEN
+            z -= 1
+        ENDIF
+        INPUT click
+        IF click THEN
+            collision = find_point_of_collision(click)
+            IF building_exists_at(collision) THEN
+                money += build_rate
+                remove_building(collision)
+            ELSE
+                money -= build_rate
+                add_building(collision)
+            ENDIF
+        ENDIF
+        DISPLAY get_map_tiles_around_3d(x, y, z)
+        DISPLAY money
+    ENDWHILE
+END
+```
 # Development
 # Integration
 # Testing and debugging
