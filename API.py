@@ -2,6 +2,8 @@ import requests
 import io
 import math
 import pygame
+import re
+from difflib import get_close_matches
 from typing import Tuple, Iterable
 import xml.etree.ElementTree as ET
 
@@ -13,10 +15,8 @@ __all__ = [
 ]
 
 def cityChooser():
-    chosen = input('Choose a city (blank for "Sydney Australia") > ') or 'Sydney'.replace(',', ' ').replace('  ', ' ').strip()
-    if chosen.count(' ') == 1:
-        return chosen.split(' ')
-    return (chosen,)
+    chosen = (input('Choose a city (blank for "Sydney Australia") > ') or 'Sydney Australia').replace(',', ' ').replace('  ', ' ').strip()
+    return chosen.split(' ')
 
 def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, float | None, Iterable[float] | None]:
     """
@@ -99,3 +99,28 @@ def getHeightInfo(x, y, z):
     })
     resp.raise_for_status()
     return pygame.image.load(io.BytesIO(resp.content))
+
+def getTotMoney(country):
+    resp = requests.get('https://datacatalogapi.worldbank.org/dexapps/efi/metadata/countries?country='+country.replace(' ', '+'))
+    resp.raise_for_status()
+    ISO3 = resp.json()['value'][0]['ISO3']
+    resp = requests.get('https://datacatalogapi.worldbank.org/dexapps/efi/data?datasetId=IMF.GFSMAB&indicatorIds=IMF.GFSMAB.GANW_G14_XDC&top=1&attribute1=Local%20governments&attribute2=Billions&countryCodes='+ISO3)
+    resp.raise_for_status()
+    year = 0
+    val = None
+    for info in resp.json()['value']:
+        nyear = int(info['CAL_YEAR'].split('/')[-1])
+        if nyear > year:
+            val = info['IND_VALUE']
+    return val * 1000000000 # It's in billions
+
+def getPropertyPrice(country):
+    resp = requests.get('https://static.dwcdn.net/data/W1lDC.csv?v=1742769960000')
+    resp.raise_for_status()
+    dat = resp.text.split('\r\n')
+    names = [j.split(',')[0] for j in dat[1:]]
+    closest = get_close_matches(country, names, 1, 0.6)
+    country = closest[0]
+    TwoBedroomApartmentPrice = re.findall(re.escape(country)+r',(?:(?:"[0-9,.]+")|[0-9,.]+),"?([0-9,.]+)"?,', '\n'.join(dat))[0]
+    TwoBedroomApartmentPrice = int(TwoBedroomApartmentPrice.replace(',', ''))
+    return TwoBedroomApartmentPrice

@@ -1,10 +1,12 @@
 import math
-from API import get_location, lat_lngTOxy, getPlaceInfo, getHeightInfo, cityChooser
+from API import get_location, lat_lngTOxy, getPlaceInfo, getHeightInfo, cityChooser, getTotMoney, getPropertyPrice
 import pygame
 from threading import Thread
-
 z = 9
-lat, lng, bbx = get_location(*cityChooser())
+city, country = cityChooser()
+lat, lng, bbx = get_location(city, country)
+print('Total money:', getTotMoney(country))
+print('Apartment price:', getPropertyPrice(country))
 x, y = lat_lngTOxy(lat, lng, z)
 minmaxZoom = 9
 minx, miny = lat_lngTOxy(bbx[0], bbx[2], minmaxZoom)
