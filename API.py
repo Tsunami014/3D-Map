@@ -16,7 +16,12 @@ __all__ = [
 
 def cityChooser():
     chosen = (input('Choose a city (blank for "Sydney Australia") > ') or 'Sydney Australia').replace(',', ' ').replace('  ', ' ').strip()
-    return chosen.split(' ')
+    spl = chosen.split(' ')
+    if len(spl) == 0:
+        return 'Sydney', 'Australia'
+    elif len(spl) == 1:
+        return spl[0], 'Australia'
+    return spl[0], ' '.join(spl[1:])
 
 def get_location(city: str, country: str = 'Australia') -> Tuple[float | None, float | None, Iterable[float] | None]:
     """
@@ -103,16 +108,22 @@ def getHeightInfo(x, y, z):
 def getTotMoney(country):
     resp = requests.get('https://datacatalogapi.worldbank.org/dexapps/efi/metadata/countries?country='+country.replace(' ', '+'))
     resp.raise_for_status()
-    ISO3 = resp.json()['value'][0]['ISO3']
+    vals = resp.json()['value']
+    if not vals:
+        return None
+    ISO3 = vals[0]['ISO3']
     resp = requests.get('https://datacatalogapi.worldbank.org/dexapps/efi/data?datasetId=IMF.GFSMAB&indicatorIds=IMF.GFSMAB.GANW_G14_XDC&top=1&attribute1=Local%20governments&attribute2=Billions&countryCodes='+ISO3)
     resp.raise_for_status()
     year = 0
     val = None
-    for info in resp.json()['value']:
+    values = resp.json()['value']
+    if not values:
+        return None
+    for info in values:
         nyear = int(info['CAL_YEAR'].split('/')[-1])
         if nyear > year:
             val = info['IND_VALUE']
-    return val * 1000000000 # It's in billions
+    return round(val * 1000000000) # It's in billions
 
 def getPropertyPrice(country):
     resp = requests.get('https://static.dwcdn.net/data/W1lDC.csv?v=1742769960000')
@@ -120,6 +131,8 @@ def getPropertyPrice(country):
     dat = resp.text.split('\r\n')
     names = [j.split(',')[0] for j in dat[1:]]
     closest = get_close_matches(country, names, 1, 0.6)
+    if not closest:
+        return None
     country = closest[0]
     TwoBedroomApartmentPrice = re.findall(re.escape(country)+r',(?:(?:"[0-9,.]+")|[0-9,.]+),"?([0-9,.]+)"?,', '\n'.join(dat))[0]
     TwoBedroomApartmentPrice = int(TwoBedroomApartmentPrice.replace(',', ''))

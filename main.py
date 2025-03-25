@@ -1,13 +1,15 @@
 from queue import Empty, Queue
 import pygame
 from objs import Mesh, surfaceToTexture
-from API import get_location, lat_lngTOxy, getPlaceInfo, getHeightInfo, cityChooser
+from API import get_location, lat_lngTOxy, getPlaceInfo, getHeightInfo, cityChooser, getTotMoney, getPropertyPrice
 from OpenGL.GL import *  # noqa: F403
 from OpenGL.GLU import gluPerspective
 from functools import lru_cache
 from threading import Thread
 
-city = cityChooser()
+city, country = cityChooser()
+print(country+' total money:', getTotMoney(country))
+print(country+' apartment price:', getPropertyPrice(country))
 
 # Initialize Pygame and OpenGL
 pygame.init()
@@ -29,7 +31,7 @@ gluPerspective(45, display[0]/display[1], 0.1, 50.0)
 glMatrixMode(GL_MODELVIEW)
 
 RHO = 40
-CHUNKSZE = 15
+CHUNKSZE = 13
 hei = 5
 z = 12
 startHei = 4
@@ -39,7 +41,11 @@ glRotatef(-RHO, 1.0, 0.0, 0.0)
 viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 glLoadIdentity()
 
-lat, lng, bbx = get_location(*city)
+lat, lng, bbx = get_location(city, country)
+if lat is None or lng is None:
+    raise ValueError(
+        f'Place "{city}", "{country}" cannot be found!'
+    )
 x, y = lat_lngTOxy(lat, lng, z)
 startx, starty = x, y
 SZE = 512
@@ -98,7 +104,7 @@ def genMesh(x, y, z, Q):
         else:
             y2 = SZE-(y*fact[1]+CHUNKSZE//2)
         px = realHei.get_at((x2, y2))
-        if px[1] > 250:
+        if px[1] > 200:
             outh = 0
         else:
             outh = px[1]/255

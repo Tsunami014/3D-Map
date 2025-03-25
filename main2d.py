@@ -5,8 +5,8 @@ from threading import Thread
 z = 9
 city, country = cityChooser()
 lat, lng, bbx = get_location(city, country)
-print('Total money:', getTotMoney(country))
-print('Apartment price:', getPropertyPrice(country))
+print(country+' total money:', getTotMoney(country))
+print(country+' apartment price:', getPropertyPrice(country))
 x, y = lat_lngTOxy(lat, lng, z)
 minmaxZoom = 9
 minx, miny = lat_lngTOxy(bbx[0], bbx[2], minmaxZoom)
@@ -108,7 +108,7 @@ while run:
     
     z = max(min(z, 14), 8)
     zf = 2**(z-minmaxZoom)
-    x = max(min(x, maxx*zf+int(z>10)), minx*zf)
+    x = max(min(x, maxx*zf+int(z>10)+1), minx*zf)
     y = max(min(y, miny*zf), maxy*zf)
     
     ks = pygame.key.get_pressed()
