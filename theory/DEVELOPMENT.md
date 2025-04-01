@@ -41,45 +41,100 @@ gantt
 ```js
 START
     INPUT city
-    z = 9
+    z = 9 // Zoom level
     x, y = get_XY(city, z)
     money = get_money(city)
+    DISPLAY money
     build_rate = get_build_rate(city)
+    DISPLAY build_rate
+    map_3d = get_map_tiles(x, y, z)
+    rotation = 45 // Angle the viewpoint is at
+    rotate_view(-rotation)
     WHILE true
         INPUT keys
         IF quit IN keys THEN
             BREAK
         ENDIF
         IF up IN keys THEN
-            y -= 1
+            offset_tiles(0, -1, 0, rotation)
         ELSEIF down IN keys THEN
-            y += 1
+            offset_tiles(0, 1, 0, rotation)
         ENDIF
         IF left IN keys THEN
-            x -= 1
+            offset_tiles(-1, 0, 0, rotation)
         ELSEIF right IN keys THEN
-            x += 1
+            offset_tiles(1, 0, 0, rotation)
         ENDIF
         IF comma IN keys THEN
-            z += 1
+            offset_tiles(0, 0, 1, rotation)
         ELSEIF period IN keys THEN
-            z -= 1
+            offset_tiles(0, 0, -1, rotation)
         ENDIF
-        INPUT click
-        IF click THEN
-            collision = find_point_of_collision(click)
-            IF building_exists_at(collision) THEN
-                money += build_rate
-                remove_building(collision)
-            ELSE
-                money -= build_rate
-                add_building(collision)
-            ENDIF
-        ENDIF
-        DISPLAY get_map_tiles_around_3d(x, y, z)
-        DISPLAY money
+        DISPLAY map_3d
     ENDWHILE
 END
+
+START offset_tiles(x, y, z, rotation)
+    rotate_view(rotation)
+    move_view(x, y, z)
+    rotate_view(-rotation)
+END offset_tiles(x, y, z, rotation)
+
+START get_map_tiles(x, y, z)
+    dirs = get_directions(3, 3) // Amount of tiles
+    end = []
+    FOR i = 0 TO len(dirs)
+        offx, offy = dirs[i]
+        // They start as promises that don't render anything but then once the data comes it renders the data
+        end.append(find_map_data(x+offx, y+offy, z))
+    NEXT i
+    RETURN end
+END get_map_tiles(x, y, z)
+```
+```mermaid
+flowchart TD
+    1([START])-->
+        2[/INPUT city/]-->
+        3[z = 9]-->
+        4["x, y = get_XY(city, z)"]-->
+        5["money = get_money(city)"]-->
+        6[/DISPLAY money/]-->
+        7["build_rate = get_build_rate(city)"]-->
+        8[/DISPLAY build_rate/]-->
+        9["map_3d = get_map_tiles(x, y, z)"]-->
+        10[rotation = 45]-->
+        11[["rotate_view(-rotation)"]]-->
+            a[/INPUT keys/]-->
+            b{IF quit IN keys}-->|True|E([END])
+            b-->|False|c
+            c{IF up IN keys}-->|True|c1[["offset_tiles(0, -1, 0)"]]
+            c-->|False|d
+            d{IF down IN keys}-->|True|d1[["offset_tiles(0, 1, 0)"]]
+            c1-->e
+            d-->|False|e
+            d1-->e
+            e{IF left IN keys}-->|True|e1[["offset_tiles(-1, 0, 0)"]]
+            e-->|False|f
+            f{IF right IN keys}-->|True|f1[["offset_tiles(1, 0, 0)"]]
+            e1-->g
+            f-->|False|g
+            f1-->g
+            g{IF comma IN keys}-->|True|g1[["offset_tiles(0, 0, 1)"]]
+            g-->|False|h
+            h{IF period IN keys}-->|True|h1[["offset_tiles(0, 0, -1)"]]
+            g1-->i
+            h-->|False|i
+            h1-->i
+            i[/DISPLAY map_3d/]
+            i-->a
+```
+```mermaid
+flowchart TD
+    S(["START offset_tiles(x, y, z, rotation)"])-->
+        1[["rotate_view(rotation)"]]-->
+        2[["move_view(x, y, z)"]]-->
+        3[["rotate_view(-rotation)"]]-->
+    E(["END offset_tiles(x, y, z, rotation)"])
 ```
 # Development
 # Integration
