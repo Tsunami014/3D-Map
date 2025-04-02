@@ -21,4 +21,6 @@ Type in the terminal `python3 main.py` in this directory or double click on the 
 ## TODOs
  - [ ] TODO: comments and docstrings
  - [ ] TODO: Unittests
+ - [ ] TODO: Handle every error
+ - [ ] TODO: Show when loading
 

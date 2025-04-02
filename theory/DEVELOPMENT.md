@@ -7,8 +7,8 @@ The user needs to be able to view a 3D environment of a city, and needs to be ab
 The system needs to be able to tell the user when it's loading, as getting data from the web can take a while. The system needs to work all the time (when the user is connected to WIFI) and give descriptive error messages if not. After loading, the system needs to be fast and not laggy; getting at least 30 FPS. It also needs to be easily navigatable; with clear instructions on how to use it, as for some people the 3D UI may be a bit confusing without knowledge of how to use it.
 # Determining specifications
 ## Functional specifications
-The user needs to be able to choose a city and view data about it in 3D. The system needs to accept an input of a place and display 3D data about the city, such as elevation, roads, and other points of interest. The user should be able to use their keyboard to change their viewpoint in the 3D environment.
-It also needs to be able to handle errors gracefully, which could be no WIFI, the API returning bad values, or the user inputting a city that does not exist.
+The user needs to be able to choose a city and view data about it in 3D. The system needs to accept an input of a place and display 3D data about the city, such as elevation, roads, and other points of interest. The user should be able to use their keyboard as input to change their viewpoint in the 3D environment.
+The system also needs to be able to handle errors gracefully, which could be having no WIFI, the API returning bad values, or the user inputting a city that does not exist.
 ## Non-functional specifications
 The system should perform tasks as fast as possible, but since we're dealing with web requests, it could take a while. So, we need to show the user while it's loading. We also need to ensure it isn't laggy for user engagement, getting >=30 FPS. We can ensure this through having different quality settings that get auto-chosen based off of how fast the user's computer is. Data that might be incorrect can be an issue if the API changes over time, so the program needs to handle bad data and stop the program gracefully.
 ## Use case
@@ -26,15 +26,15 @@ Postconditions: None
 gantt
     title A Gantt Diagram
     dateFormat DD-MM-YY
-    section Designn
+    section Design
         Determining specifications & requirements   :24-02-25, 26-02-25
-        Finding the right API        :26-02-25, 03-03-25
     section Development
-        Making Proof Of Concepts (integration)    :26-02-25, 03-03-25
-        Work on main program         :03-03-25, 15-03-25
-        Finish main program          :milestone, crit, dne, 15-03-25, 0d
+        Finding the right API (development)        :26-02-25, 03-03-25
+        Work on main program (integration)         :03-03-25, 10-03-25
+        Testing and debugging                      :10-03-25, 20-03-25
+        Finish main program          :milestone, crit, dne, 20-03-25, 0d
     section Maintenance
-        Ensuring the API still works :after dne, 5d
+        Fixing discovered bugs (maintenance) (ongoing) :after dne, 1d
 ```
 ## Structure chart
 ![https://excalidraw.com/#json=GC8AWBBpy3yUbl4ZATDmA,3BjGYwydkUTXpUBeDXqDBg](structchart.png)
@@ -137,6 +137,19 @@ flowchart TD
         3[["rotate_view(-rotation)"]]-->
     E(["END offset_tiles(x, y, z, rotation)"])
 ```
+```mermaid
+flowchart TD
+    S(["START get_map_tiles(x, y, z)"])-->
+        1["dirs = get_directions(3, 3)"]-->
+        2["end = []"]-->
+        3[i = 0]-->
+        4{"IF i < len(dirs)"}-->|True|a
+            a["offx, offy = dirs[i]"]-->
+            b["end.append(find_map_data(x+offx, y+offy, z))"]-->
+        4
+        4-->|False|E
+    E(["END get_map_tiles(x, y, z)"])
+```
 ## Data dictionary
 | Variable | Data type | Format for display | Size in bytes | Size for display | Description | Example | Validation |
 |--|--|--|--|--|--|--|--|
@@ -149,6 +162,7 @@ flowchart TD
 // TODO: What??????
 > Remember to update your project documentation to include a code block of your integrated programs under the heading Integration
 # Testing and debugging
+// TODO: What??????
 # Installation
 See [main.py](./main.py)
 # Maintenance
