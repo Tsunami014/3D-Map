@@ -134,7 +134,18 @@ flowchart TD
         3[["rotate_view(-rotation)"]]-->
     E(["END offset_tiles(x, y, z, rotation)"])
 ```
+## Data dictionary
+{
+    'type': feature['geometry']['type'], 
+    'coords': fix_coords(feature['geometry']['coordinates']), 
+    'importance': -1 if featureGroup not in IMPORTANCE else IMPORTANCE.index(featureGroup),
+    'group': featureGroup,
+    'kind': feature['properties']['kind'],
+    'name': feature['properties'].get('name', '') # source, operator?
+}
 # Development
+> Include a code block containing the entirety of `main.py` and `objs.py`
 # Integration
+> Include a code block containing the entirety of `API.py`
 # Testing and debugging
 # Maintenance
