@@ -13,10 +13,22 @@ Type in the terminal `python3 main.py` in this directory or double click on the 
  - `main.py` is the one with 3D which is recommended
  - `mainold.py` is the one in 2D which is still cool if you want to have a look, but this file *is not* the main project file.
 ### Controls
-(These are the same in both `main.py` and `mainold.py`)
- - `←`/`↑`/`→`/`↓` - move viewpoint
- - `,`/`.` - zoom in/out
- - `<esc>` - quit
+CONTROLS:
+ - Arrow keys; move
+ - , or . keys; zoom in/out
+ - ESC; quit
+ - `*`If you get lost, press 'r' to go back to the map
+ - `*`If you need help, press 'h'
+
+DISPLAY:
+ - Green; land
+ - Blue; water
+ - Brown; land use
+ - Yellow lines; roads
+ - Red dots; Points Of Interest
+ - Black line; country outline
+
+`*`main.py only
 
 ## TODOs
  - [ ] TODO: comments and docstrings

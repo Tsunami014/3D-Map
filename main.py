@@ -10,9 +10,10 @@ from requests.exceptions import ConnectionError
 
 def print_help():
     print("""
-MOVEMENT:
+CONTROLS:
  - Arrow keys; move
  - , or . keys; zoom in/out
+ - ESC; quit
  - If you get lost, press 'r' to go back to the map
 
 DISPLAY:
