@@ -154,13 +154,19 @@ flowchart TD
 | Variable | Data type | Format for display | Size in bytes | Size for display | Description | Example | Validation |
 |--|--|--|--|--|--|--|--|
 
-// TODO: What for?
+{
+    'type': feature['geometry']['type'], 
+    'coords': fix_coords(feature['geometry']['coordinates']), 
+    'importance': -1 if featureGroup not in IMPORTANCE else IMPORTANCE.index(featureGroup),
+    'group': featureGroup,
+    'kind': feature['properties']['kind'],
+    'name': feature['properties'].get('name', '') # source, operator?
+}
 
 # Development
-// TODO: Add code blocks of old code???
+Include a code block containing the entirety of `main.py` and `objs.py`
 # Integration
-// TODO: What??????
-> Remember to update your project documentation to include a code block of your integrated programs under the heading Integration
+Include a code block containing the entirety of `API.py`
 # Testing and debugging
 > Have at least 2 other students perform a system-level test and give feedback based off of functional and non-functional requirements, response time, load testing and the suitability of the requirements.txt and README.md file
 # Installation
