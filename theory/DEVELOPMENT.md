@@ -183,8 +183,10 @@ The program needs to get feature data from the internet of all the map features 
 | name       | str       | XX..XX | Variable; string can be of any length | The name of the feature, if it has one | `"Cooks River"`  | Only uses characters in the set `[a-zA-Z ]` |
 
 # Development & integration
-Include images of all past versions of the code (& current) and a short description and what API they used
-
+## Past code
+ - [Planet data](./planetData.mp4) used an openstreetmap mirror to get polygons about the world and render them using matplotlib. This API was rejected as it took literally 2 mins to load just Asia, and also they are not too accurate.
+ - [mainold.py](./main2D.mp4) was the starting point for the 3D map that is the final project; it is very similar, using the same APIs, and I kept it in the github repo as it works fine.
+ 
 See github commits for more information.
 # Testing and debugging
 See [tests.py](../tests.py) for a comprehensive list of unittests for every function.
