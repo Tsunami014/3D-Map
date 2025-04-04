@@ -136,6 +136,7 @@ def main():
                 pos, arr, texture=surfaceToTexture(pygame.image.frombytes(sur, (SZE, SZE), 'RGB'))
             ))
 
+    print('Requesting map... (may take a short while)')
     objs = [
         progressMesh(x, y, z),
 
