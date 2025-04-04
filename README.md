@@ -1,6 +1,6 @@
 # ASE Assessment 1
 ## Overview
-This project aims to provide you with a method for finding a city you would like to live in through displaying a 3D map of the city in addition to the price of housing and the amount of money the government has.
+This project aims to provide users with an overview of a city (one use case being finding a city they would like to live in) through displaying a 3D map of the city in addition to the price of housing and the amount of money the government has.
 ## Features
  - Displays a 3D map of the chosen location
  - Displays government money and housing prices
