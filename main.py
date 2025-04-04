@@ -8,6 +8,22 @@ from functools import lru_cache
 from threading import Thread
 from requests.exceptions import ConnectionError
 
+def print_help():
+    print("""
+MOVEMENT:
+ - Arrow keys; move
+ - , or . keys; zoom in/out
+ - If you get lost, press 'r' to go back to the map
+
+DISPLAY:
+ - Green; land
+ - Blue; water
+ - Brown; land use
+ - Yellow lines; roads
+ - Red dots; Points Of Interest
+ - Black line; country outline
+    """)
+
 def main():
     city, country = cityChooser()
 
@@ -16,6 +32,8 @@ def main():
         raise ValueError(
             f'Place "{city}", "{country}" cannot be found!'
         )
+
+    print('Requesting data & map... (may take a short while)\nPress "h" in the new window to show help here.')
 
     print(country+' total money:', getTotMoney(country) or "unknown")
     print(country+' two bedroom apartment price:', getPropertyPrice(country) or "unknown")
@@ -136,7 +154,6 @@ def main():
                 pos, arr, texture=surfaceToTexture(pygame.image.frombytes(sur, (SZE, SZE), 'RGB'))
             ))
 
-    print('Requesting map... (may take a short while)')
     objs = [
         progressMesh(x, y, z),
 
@@ -151,15 +168,23 @@ def main():
         progressMesh(x+1, y-1, z),
     ]
 
+    off = [0, 0, 0]
+
     paused = False
     run = True
     clock = pygame.time.Clock()
     while run:
+        reset = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 run = False
-            if event.type == pygame.KEYDOWN and event.key in [pygame.K_PAUSE, pygame.K_p]:
-                paused = not paused
+            if event.type == pygame.KEYDOWN:
+                if event.key in [pygame.K_PAUSE, pygame.K_p]:
+                    paused = not paused
+                elif event.key == pygame.K_h:
+                    print_help()
+                elif event.key == pygame.K_r:
+                    reset = True
 
         keypress = pygame.key.get_pressed()
         
@@ -170,23 +195,37 @@ def main():
             glLoadIdentity()
 
             # Movement controls
+            if reset:
+                glRotatef(RHO, 1.0, 0.0, 0.0)
+                glTranslate(0, 0, -off[1])
+                glRotatef(-RHO, 1.0, 0.0, 0.0)
+                glTranslate(-off[0], 0, -off[2])
+                off = [0, 0, 0]
+                reset = False
+
             move_speed = 0.5
             if keypress[pygame.K_w]:
                 glRotatef(RHO, 1.0, 0.0, 0.0)
                 glTranslate(0, 0, move_speed)
+                off[1] += move_speed
                 glRotatef(-RHO, 1.0, 0.0, 0.0)
             if keypress[pygame.K_s]:
                 glRotatef(RHO, 1.0, 0.0, 0.0)
                 glTranslate(0, 0, -move_speed)
+                off[1] -= move_speed
                 glRotatef(-RHO, 1.0, 0.0, 0.0)
             if keypress[pygame.K_d]:
                 glTranslate(-move_speed, 0, 0)
+                off[0] -= move_speed
             if keypress[pygame.K_a]:
                 glTranslate(move_speed, 0, 0)
+                off[1] -= move_speed
             if keypress[pygame.K_COMMA]:
                 glTranslate(0, 0, move_speed)
+                off[2] += move_speed
             if keypress[pygame.K_PERIOD]:
                 glTranslate(0, 0, -move_speed)
+                off[2] -= move_speed
 
             glMultMatrixf(viewMatrix)
             viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
@@ -219,5 +258,9 @@ if __name__ == '__main__':
     except Exception as e:
         print('An unknown error occured! Error:', e)
     print('If this happens often please report it on the github page.')
+    try:
+        pygame.quit()
+    except Exception:
+        pass
     input('Press any button to exit.')
 
