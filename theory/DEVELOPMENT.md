@@ -162,7 +162,7 @@ flowchart TD
 // TODO: What??????
 > Remember to update your project documentation to include a code block of your integrated programs under the heading Integration
 # Testing and debugging
-// TODO: What??????
+> Have at least 2 other students perform a system-level test and give feedback based off of functional and non-functional requirements, response time, load testing and the suitability of the requirements.txt and README.md file
 # Installation
 See [main.py](./main.py)
 # Maintenance

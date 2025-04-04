@@ -5,8 +5,12 @@ from threading import Thread
 z = 9
 city, country = cityChooser()
 lat, lng, bbx = get_location(city, country)
-print(country+' total money:', getTotMoney(country))
-print(country+' apartment price:', getPropertyPrice(country))
+if lat is None or lng is None or bbx is None:
+    raise ValueError(
+        'City &/or country not found!'
+    )
+print(country+' total money:', getTotMoney(country) or "unknown")
+print(country+' two bedroom apartment price:', getPropertyPrice(country) or "unknown")
 x, y = lat_lngTOxy(lat, lng, z)
 minmaxZoom = 9
 minx, miny = lat_lngTOxy(bbx[0], bbx[2], minmaxZoom)

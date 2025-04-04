@@ -1,14 +1,32 @@
 import math
+from typing import Iterable
 import pygame
 from OpenGL.GL import *  # noqa: F403
 
-def tex_coord(x, y, n=4):
-    """Calculate texture coordinates for a given (x, y) position in an n x n texture atlas."""
+def tex_coord(x: int, y: int, n: int = 4) -> Iterable[float|int]:
+    """
+    Calculate texture coordinates for a given (x, y) position in an n x n texture atlas.
+
+    Args:
+        x (int): The x coordinate of the texture.
+        y (int): The y coordinate of the texture.
+        n (int): The amount of times to split the texture.
+    """
     m = 1.0 / n
     dx, dy = x * m, y * m
     return dx, dy, dx, dy + m, dx + m, dy + m, dx + m, dy
 
-def surfaceToTexture(sur, nearest=False):
+def surfaceToTexture(sur: pygame.Surface, nearest: bool = False) -> int:
+    """
+    Turn a pygame surface into an openGL texture
+
+    Args:
+        sur: The surface to turn into a texture.
+        nearest: Whether to use the nearest neighbour algorithm or use smoothing.
+
+    Returns:
+        The texture ID.
+    """
     # Thanks to https://stackoverflow.com/questions/61396799/how-can-i-blit-my-pygame-game-onto-an-opengl-surface !
     textureData = pygame.image.tostring(sur, "RGBA", 1)
     width, height = sur.get_size()
@@ -30,7 +48,21 @@ def surfaceToTexture(sur, nearest=False):
     return texid
 
 class Mesh:
-    def __init__(self, corner, heights, sze=1, texture=None):
+    def __init__(self, 
+                 corner: Iterable[int],
+                 heights: Iterable[Iterable[int]],
+                 sze: int = 1,
+                 texture: int|None = None
+            ):
+        """
+        A Mesh object which renders the heightmap with an optional texture.
+
+        Args:
+            corner: The top left corner of the object.
+            heights: The list of coordinate heights.
+            sze: The distance between coordinates in the 3d space.
+            texture: The texture ID (or None) to render.
+        """
         self.ps = [[
             (corner[0] + x*sze, corner[1] + y*sze, corner[2] + heights[y][x])
             for x in range(len(heights[y]))
