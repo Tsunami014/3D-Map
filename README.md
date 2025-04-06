@@ -1,8 +1,9 @@
 # ASE Assessment 1
 ## Overview
-This project aims to provide users with an overview of a city (one use case being finding a city they would like to live in) through displaying a 3D map of the city in addition to the price of housing and the amount of money the government has.
+This project aims to provide users with an overview of a city, specifically for finding where in a city they would like to live. The program will accomplish this through displaying desirable factors of a city of the users choosing; including elevation, roads, greenery, water features and points of interest, in addition to the price of an apartment and the amount of money the government has. These desirable factors will help users decide how suited to the city they will be, in addition to how much they want to live there. This could be a new feature for a real estate website or software.
 ## Features
- - Displays a 3D map of the chosen location
+ - Displays a 3D map of the chosen location, with information such as greenery, roads, POIs, water features, etc.
+    - You can move around in the 3D environment with the keyboard
  - Displays government money and housing prices
 ## How to install
 Ensure you have a version of python3 and it has pip, then run `pip install requirements.txt`.
@@ -29,8 +30,4 @@ DISPLAY:
  - Black line; country outline
 
 `*`main.py only
-
-## TODOs
- - [ ] TODO: comments and docstrings
- - [ ] TODO: Show when loading
 

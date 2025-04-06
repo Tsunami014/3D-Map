@@ -1,5 +1,5 @@
 # Project overview
-This project aims to provide users with an overview of a city, specifically for finding where a city they would like to live. This will be achieved through displaying a 3D map of the city containing elevation, roads, greenery and points of intrest in addition to the price of an apartment and the amount of money the government has. This could be a new feature for a real estate website.
+This project aims to provide users with an overview of a city, specifically for finding where in a city they would like to live. The program will accomplish this through displaying desirable factors of a city of the users choosing; including elevation, roads, greenery, water features and points of interest, in addition to the price of an apartment and the amount of money the government has. These desirable factors will help users decide how suited to the city they will be, in addition to how much they want to live there. This could be a new feature for a real estate website or software.
 # Requirements definition
 ## Functional requirements
 1. The system must display 3D data about a city, such as elevation, roads, and other points of interest
@@ -11,20 +11,21 @@ This project aims to provide users with an overview of a city, specifically for 
 1. The system needs to be able to tell the user when it's loading, as getting data from the web can take a while
 2. The system needs to work all the time (when the user is connected to WIFI) and give descriptive error messages if an error has occurred
 3. After loading, the system needs to be fast and not laggy; getting at least 30 FPS on regular computers
-4. The system also needs to be easily navigatable; with clear instructions on how to use it, as for some people the 3D UI may be a bit confusing without knowledge of how to use it
+4. The system also needs to be easily navigatable; with clear instructions on how to use it, as for some people the 3D UI may be a bit confusing without knowledge of how to use it. The instructions need to be clear enough so any user can know how to use the program.
 # Determining specifications
 ## Functional specifications
 1. The user needs to be able to choose a city by inputting a city name into the system
 2. The user needs to be able to view a 3D environment of the chosen city in a GUI window
 3. The user needs to be able to move the viewpoint around in the 3D environment with the keyboard to see the data from multiple points of view
 4. The user must also be able to see the current cost of an apartment in that country and how much money its government has
-5. The system also needs to be able to handle errors gracefully by telling the user what happened and allowing them to go to the github page with the error so I can fix it. Errors to handle could be having no WIFI, the API returning bad values, or the user inputting a city that does not exist
+5. The system also needs to be able to handle errors gracefully by telling the user what happened and allowing them to go to the github page with the error so developers can fix it. Errors to handle could be having no WIFI, the API returning bad values, or the user inputting a city that does not exist.
+6. The user needs to be able to request 'help', where the system will provide the keybinds for using the program
 ## Non-functional specifications
 1. The system should perform tasks as fast as possible, but since we're dealing with web requests, it could take a while. So, the program needs to tell the user when it's loading
 2. It also needs to ensure it isn't laggy for user engagement, getting at least 30 FPS on regular computers
 3. Data that might be incorrect can be an issue if the API changes over time, so the program needs to stop the program gracefully if it encounters incorrect data
 4. To make the program more accessible, it will print the help messages and info to the terminal; so screen readers can pick it up
-5. When it does error, it needs to gracefully stop and tell the user what happened, as well as telling them to put the error on the github page so I can fix it
+5. When it does error, it needs to gracefully stop and tell the user what happened, as well as telling them to put the error on the github page so developers can fix it
 ## Use case
 Actor: User (who is interested in looking into buying a house in a specific city)
 
@@ -47,7 +48,8 @@ gantt
         Design charts and pseudocode                  :01-03-25, 05-03-25
     section Development
         Finding the right API (for later integration) :26-02-25, 03-03-25
-        Work on main program (development)            :05-03-25, 15-03-25
+        Work on main program (development)            :05-03-25, 11-03-25
+        Integrate found APIs into main program        :08-03-25, 15-03-25
         Testing and debugging                         :15-03-25, 20-03-25
         Finish main program          :milestone, crit, dne, 20-03-25, 0d
     section Maintenance
@@ -183,14 +185,22 @@ The program needs to get feature data from the internet of all the map features 
 | name       | str       | XX..XX | Variable; string can be of any length | The name of the feature, if it has one | `"Cooks River"`  | Only uses characters in the set `[a-zA-Z ]` |
 
 # Development & integration
-## Past code
- - [Planet data](./planetData.mp4) used an openstreetmap mirror to get polygons about the world and render them using matplotlib. This API was rejected as it took literally 2 mins to load just Asia, and also they are not too accurate.
- - [mainold.py](./main2D.mp4) was the starting point for the 3D map that is the final project; it is very similar, using the same APIs, and I kept it in the github repo as it works fine.
+## Development process
+ - [Planet data](./planetData.mp4) used an openstreetmap mirror to get polygons about the world and render them using matplotlib. This API was rejected as it took 2 mins to load just Asia, and also they are not too accurate.
+ - [mainold.py](./main2D.mp4) was the starting point for the 3D map that is the final project; it is very similar, using the same APIs; and I kept it in the github repo as it works fine.
  
 See github commits for more information.
 # Testing and debugging
-See [tests.py](../tests.py) for a comprehensive list of unittests for every function.
+## Unittests
+The unittests have been provided in [tests.py](../tests.py) to ensure developers can test what parts of the code works with a new feature change and what bugs to fix.
 
+Every function in API.py has been unit tested, in addition to some integration/system tests of the whole system to ensure the system can handle different cases, such as:
+ - No wifi
+ - Bad inputs (wrong types)
+ - Incorrect values (too high/low, places that do not exist, etc.)
+ - Correct values (ensure it does not fail) and their output types
+
+## Peer review
 Peer review template:
  - How well does it fit the functional and non-functional requirements and specifications?
  - How was the loading? Did you think it was too long or you didn't notice it?
@@ -204,14 +214,19 @@ Peer review template:
 # Installation
 See [README.md](../README.md)
 # Maintenance
-Over time, the API for the map might change, and so to compensate I would keep the github repo open for issues so users can log API problems or other bugs, so I can fix the code and get everyone to update and have it working again. Newer versions of libraries such as OpenGL or requests might come out, and if there are any breaking changes I will pin specific versions in the requirements.txt so it will only install versions before the breaking changes. In addition, new versions of Python may come out and break the code; in which case I will specify which versions of python work in the README. This all means that if things happen to the APIs, pip packages or python versions that this project will still work, unless one were to go fully offline forever. Clear documentation on how to install and update and how to notify the creators of a bug is key, and will be stored in the README.md of the project for easy reference in addition to telling the users what to do when a bug is found in the code.
-If a bug were to be found after deployment, the code would gracefully exit, telling the user where to report it; to the github issues page. This way, I can easily keep track of every issue and fix them. Once fixed, new users will have the bug fixed and old users can reinstall if they want to upgrade to the fix.
+Over time, the API for the map might change, and so to compensate I would keep the github repo open for issues so users can log API problems or other bugs, so developers can fix the code and get everyone to update and have it working again. Newer versions of libraries such as OpenGL or requests might come out, and if there are any breaking changes specific versions can be pinned in the requirements.txt so it will only install versions before the breaking changes to ensure it works for everyone. 
+
+In addition, new versions of Python may come out and break the code; in which case developers will specify which versions of python work in the README. This all means that if things happen to the APIs, pip packages or python versions that this project will still work, unless one were to go fully offline forever. Clear documentation on how to install and update and how to notify the creators of a bug is key, and will be stored in the README.md of the project for easy reference in addition to telling the users what to do when a bug is found in the code.
+
+If a bug were to be found after deployment, the code would gracefully exit, telling the user where to report it; to the github issues page. This way, developers can easily keep track of every issue and fix them. Once fixed, new users will have the bug fixed and old users can reinstall if they want to upgrade to the fix.
 # Final Evaluation
 This project addresses all the functional and non-functional specifications and requirements set out at the start of the project to a high degree, though there are some areas of improvement that can be taken into account for future development.
-The project achieves its set out functional requirements quite well, but there is some room for improvement. Functional requirement `1`&`4` (system must display 3D data about a city) has been met, and all listed examples are visible; but it is not as clearly visible or descriptive as I would have liked; it has no labels or descriptions for features. In addition, the program does display the price of a 2 bedroom apartment and total money the government has, as required in `2`; but the data isn't very clear, and there were some issues finding APIs that gave good data, so it may not be too accurate. In addition, the government wealth source and currency was not specified, which creates some confusion; but at least it gives a rough estimate. Functional requirement `3` is met with keyboard navigation, although it is locked to one viewpoint, although this does not pose much of a problem almost all the time - it even reduces the resk of the user getting lost! Functional requirement `5` states the user must be able to clearly make out the elevation of the land, but due to some API parsing issues, sometimes the elevation is very stuffed up; and in every case it's exaggerated a lot. But it still works, it's just slightly inaccurate.
-The non-functional requirements have been met to a high standard in this project. Non-functional requirement `1` is met through a print statement when it starts loading, and requirement `2` is also met as the entire code is within a `try-except` block that ensures that every regular error is caught and gives the user an opportunity to report it before closing. Requirement `3` was tricky, as the more quality the laggier the program got; but in the end I found a setting which gave me 30 FPS on my average laptop, so for most people this benchmark will be reached. Lastly, non-functional requirement `4` is met; there is clear instructions in the README in addition to a help function to print help if the user needs it.
-The specifications have been met also to a high degree. Functional specification `1` is a simple `input` which does the job nicely, non functional specification `4` is also simple and completes it well, and the rest correlate to previous requirements I have already gone over. 
 
-Time management could have been improved - finding which APIs worked at the start was a good idea, but I shouldn't have tried to get the money API in because that just took way too long. But the only reason I did was because I had enough time - and in the end it turned out OK as I scrapped everything else that I couldn't get up to. In addition, it does not show very detailed data; it shows the roads and water and land, but it doesn't show it very detailed (it shows it drawn on the ground, not to a very high precision; and also some features need labels such as the POIs and they don't currently) which hinders the functionality slightly. But even through all these limitations, the code does an excellent job at displaying the data it was set out to display; making it extremely valuable for its purpose of providing the users with an overview of a place.
+The project achieves its set out functional requirements quite well, but there is some room for improvement. Functional requirement `1`&`4` (system must display 3D data about a city) have been met, and all features described in the requirements are present; but there is room for improvement with the visualisation of the data; as it currently does not have labels or descriptions for the features on the map. In addition, the program does display the price of a 2 bedroom apartment and total money the government has, as required in `2`; but the data isn't very clear, and there were some issues finding APIs that gave good data, so it may not be too accurate. In addition, the government wealth source and currency was not specified, which creates some confusion; but at least it gives a rough estimate. Functional requirement `3` is met with keyboard navigation; though it is locked to one viewpoint, this simplification might make it easier for the user to navigate. Functional requirement `5` states the user must be able to clearly make out the elevation of the land, but due to some API parsing issues, there are some errors in the data coming from the API. In some cases, the altitude is exaggerated.
 
+The non-functional requirements have been met to a high standard in this project. Non-functional requirement `1` is met through a print statement when it starts loading, and requirement `2` is also met as the entire code is within a `try-except` block that ensures that every regular error is caught and gives the user an opportunity to report it before closing. Requirement `3` was tricky, as drawing a higher quality map made the program lag; an appropriate quality setting as found to consistantly give 30 FPS on my average laptop, so for most people this benchmark will be reached. Lastly, non-functional requirement `4` is met; there is clear instructions in the README in addition to a help function to print help if the user needs it.
+
+The specifications have been met also to a high degree. Functional specification `1` is a simple `input` which does the job nicely, non functional specification `4` is also simple and completes it well, and the other specifications have already been demonstrated through previous requirements.
+
+Significant time was spent finding APIs which achieved the project objectives; in particular, the money APIs took the longest. I feel that the time was delegated correctly; new features were only added when the current ones worked, which meant features that didn't have enough time to get implement didn't have to. In addition, the program does not show the API data in much detail, which hinders the functionality slightly. But even through all these limitations, the code does an excellent job at displaying the data it was set out to display; making it extremely valuable for its purpose of providing the users with an overview of a place.
 

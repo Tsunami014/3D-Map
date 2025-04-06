@@ -8,10 +8,13 @@ from typing import Tuple, Iterable
 import xml.etree.ElementTree as ET
 
 __all__ = [
+    'cityChooser',
     'get_location',
     'lat_lngTOxy',
     'getPlaceInfo',
-    'getHeightInfo'
+    'getHeightInfo',
+    'getTotMoney',
+    'getPropertyPrice'
 ]
 
 def _checkInps(**kwargs) -> None:
@@ -196,7 +199,7 @@ def getHeightInfo(x: int, y: int, z: int) -> pygame.Surface:
     
     resp = requests.get(f'https://tile.nextzen.org/tilezen/terrain/v1/512/terrarium/{z}/{x}/{y}.png?api_key=dmlO1fVQRPKI-GrVIYJ1YA', headers={
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0', # For avoiding cloudfare
-        'Origin': 'https://tangrams.github.io', # For working
+ 'Origin': 'https://tangrams.github.io', # For working
         'Connection': 'keep-alive' # For speed
     })
     resp.raise_for_status()
