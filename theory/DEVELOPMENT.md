@@ -56,7 +56,7 @@ gantt
         Fixing discovered bugs (maintenance) (ongoing) :after dne, 1d
 ```
 ## Structure chart
-![https://excalidraw.com/#json=GC8AWBBpy3yUbl4ZATDmA,3BjGYwydkUTXpUBeDXqDBg](structchart.png)
+![https://excalidraw.com/#json=dAcFd25GNQRCJEUodIcK-,1Lltx4BaxdrFea6HApxokQ](structchart.png)
 ## Algorithms
 ```js
 START
@@ -189,7 +189,7 @@ The program needs to get feature data from the internet of all the map features 
  - [Planet data](./planetData.mp4) used an openstreetmap mirror to get polygons about the world and render them using matplotlib. This API was rejected as it took 2 mins to load just Asia, and also they are not too accurate.
  - [mainold.py](./main2D.mp4) was the starting point for the 3D map that is the final project; it is very similar, using the same APIs; and I kept it in the github repo as it works fine.
  
-See github commits for more information.
+See github commits for more evaluation about progress, current functionality and future improvements.
 # Testing and debugging
 ## Unittests
 The unittests have been provided in [tests.py](../tests.py) to ensure developers can test what parts of the code works with a new feature change and what bugs to fix.

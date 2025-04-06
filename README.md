@@ -5,6 +5,11 @@ This project aims to provide users with an overview of a city, specifically for 
  - Displays a 3D map of the chosen location, with information such as greenery, roads, POIs, water features, etc.
     - You can move around in the 3D environment with the keyboard
  - Displays government money and housing prices
+## APIs used
+ - [Openstreetmap](nominatim.openstreetmap.org) for the recognition of place names
+ - [Nextzen](nextzen.org) for the map and heightmap data
+ - [WorldBank](worldbank.org) for the total money data
+ - [DataWrapper](https://www.datawrapper.de/) for the apartment price data
 ## How to install
 Ensure you have a version of python3 and it has pip, then run `pip install requirements.txt`.
 ## How to run
