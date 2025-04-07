@@ -5,6 +5,9 @@ This project aims to provide users with an overview of a city, specifically for 
  - Displays a 3D map of the chosen location, with information such as greenery, roads, POIs, water features, etc.
     - You can move around in the 3D environment with the keyboard
  - Displays government money and housing prices
+
+Sample:
+![image](https://github.com/user-attachments/assets/ecb36a33-c37c-492d-991b-8bc18d804bd6)
 ## APIs used
  - [Openstreetmap](nominatim.openstreetmap.org) for the recognition of place names
  - [Nextzen](nextzen.org) for the map and heightmap data
