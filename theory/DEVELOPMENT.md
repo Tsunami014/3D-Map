@@ -201,16 +201,11 @@ Every function in API.py has been unit tested, in addition to some integration/s
  - Correct values (ensure it does not fail) and their output types
 
 ## Peer review
-Peer review template:
- - How well does it fit the functional and non-functional requirements and specifications?
- - How was the loading? Did you think it was too long or you didn't notice it?
- - How well written is the requirements.txt and README.md? Could anyone pick it up and work it?
- - What could be improved?
- - What was the best feature in your opinion?
-## Name1
-> 
-## Name2
->
+## Riley
+>  The program ticks the functional requirements and functonal requirements. The loading times were fast enough that it didn't impact the user experience. The detailed readme and a correct requirements.txt keeps the program easy to use and function, anyone with any coding experience can easily run the program. I know that the dataset was difficult to work with so the difficult terrain was cleverly handled, but there were some small flaws with the scaling of terrain. My favorite feature is that interactivity of the program that allows you to move around and look at you selected city. The program ticks all of the functional and non functional requirements, keeps loading times speedy and shows users how to install and use with an intuative README file.
+## Oliver
+> The program looks to be fully functional and fits the non-functional requirements properly. It works pretty fast once you load it up, and it loads up the map pretty quickly. The help given allows it to be very easily usable and easy to understand what to do. I think that while the program does every thing it needs to, it would be nice if the UI was integrated into the application, and the code offered ways to change the selection without closing the program. However, it was still very good, and I don't have particular feature that was my favourite.
+
 # Installation
 See [README.md](../README.md)
 # Maintenance

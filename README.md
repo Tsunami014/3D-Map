@@ -11,9 +11,9 @@ This project aims to provide users with an overview of a city, specifically for 
  - [WorldBank](worldbank.org) for the total money data
  - [DataWrapper](https://www.datawrapper.de/) for the apartment price data
 ## How to install
-Ensure you have a version of python3 and it has pip, then run `pip install requirements.txt`.
+Ensure you have a version of python3 and it has pip, then run `pip install -r requirements.txt`.
 ## How to run
-Type in the terminal `python3 main.py` in this directory or double click on the file in the file explorer.
+Double click on the file in the file explorer or type in the terminal `python3 main.py` in this directory (you may need to type in `python` or `py`, depending on the system).
 
 **THERE ARE 2 FILES**:
  - `main.py` is the one with 3D which is recommended

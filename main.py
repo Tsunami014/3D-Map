@@ -1,5 +1,6 @@
 from queue import Empty, Queue
 import pygame
+import time
 from objs import Mesh, surfaceToTexture
 from API import get_location, lat_lngTOxy, getPlaceInfo, getHeightInfo, cityChooser, getTotMoney, getPropertyPrice
 from OpenGL.GL import *  # noqa: F403
@@ -38,6 +39,8 @@ def main():
 
     print(country+' total money:', getTotMoney(country) or "unknown")
     print(country+' two bedroom apartment price:', getPropertyPrice(country) or "unknown")
+    
+    time.sleep(2)
 
     # Initialize Pygame and OpenGL
     pygame.init()
